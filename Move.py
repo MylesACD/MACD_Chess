@@ -9,22 +9,22 @@ class Move:
         self.extra =extra
         
     def __str__(self):
-        return str(self.piece) + Move.convert(self.sx) +str(8-self.sy)+ Move.convert(self.ex) + str(8-self.ey) +self.extra +"\n"
+        return str(self.piece) + convert(self.sx) +str(8-self.sy)+ convert(self.ex) + str(8-self.ey) +self.extra +"\n"
         
-    def convert(num):
-        if num==0:
-            return "a"
-        elif num==1:
-            return "b"
-        elif num==2:
-            return "c"
-        elif num==3:
-            return "d"
-        elif num==4:
-            return "e"
-        elif num==5:
-            return "f"
-        elif num==6:
-            return "g"
-        elif num==7:
-            return "h"
+def convert(num):
+    if num==0:
+        return "a"
+    elif num==1:
+        return "b"
+    elif num==2:
+        return "c"
+    elif num==3:
+        return "d"
+    elif num==4:
+        return "e"
+    elif num==5:
+        return "f"
+    elif num==6:
+        return "g"
+    elif num==7:
+        return "h"
