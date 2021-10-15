@@ -14,23 +14,21 @@ br = "\u265C"
 bb = "\u265D"
 bn = "\u265E"
 bp = "\u265F"
+em = "--"
 
 class State(object):
     def __init__(self):
         self.blackPieces=[]
         self.whitePieces=[]
         self.board=np.chararray((8,8),unicode=True,itemsize=2)
-        self.board[:]=''
+        self.board[:]=em
         
     def generateSuccessor(self,move):
         new = self.deepcopy()
-        new.play_move(move)
+        new.board[move.sy][move.sx] = em
+        new.board[move.ey][move.ex] = move.piece
         return new
-    
-    def play_move(self, move):
-        self.board[move.sy][move.sx] = ""
-        self.board[move.ey][move.ex] = move.piece
-        return
+   
     def __str__(self):
         return str(self.board)+"\n"
     def setup_vanilla(self):

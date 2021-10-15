@@ -14,10 +14,15 @@ br = "\u265C"
 bb = "\u265D"
 bn = "\u265E"
 bp = "\u265F"
+em = "--"
+
+
+
+game_state = s.State()
+game_state.setup_vanilla()
+
 
 
 move = m.Move(wk,0,0,0,1,"")
-game_state = s.State()
-game_state.setup_vanilla()
 
 print(game_state)
