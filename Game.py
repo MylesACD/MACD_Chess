@@ -21,9 +21,10 @@ em = "--"
 
 def time_measure(func):
     start = time.perf_counter()
-    func
+    rtn = func
     finish = time.perf_counter()
     print(int(finish-start))
+    return rtn
 
 game_state = s.State()
 game_state.setup_vanilla()
@@ -34,12 +35,9 @@ move = m.Move(wp,0,6,"",0,4,"")
 
 print(game_state)
 
-game_state = game_state.generateSuccessor(move)
+game_state =  time_measure(game_state.generateSuccessor(move))
 
 print(game_state)
-
-
-
 
 
     

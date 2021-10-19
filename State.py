@@ -76,6 +76,8 @@ class State(object):
         self.blackPieces.append(p.Piece(br,0,0,5))
         self.blackPieces.append(p.Piece(br,7,0,5))
         
+        
+        
         self.board[7,(0,7)] = wr
         self.board[7,(1,6)] = wn
         self.board[7,(2,5)] = wb
