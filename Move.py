@@ -13,16 +13,17 @@ bp = "\u265F"
 
 class Move(object):
     
-    def __init__(self,piece,sx,sy,ex,ey,extra):
+    def __init__(self,piece,sx,sy,cap,ex,ey,extra):
         self.piece = piece
         self.sx = sx
         self.sy=sy
+        self.cap = cap
         self.ex =ex
         self.ey =ey
         self.extra =extra
         
     def __str__(self):
-        return str(self.piece) + convert(self.sx) +str(8-self.sy)+ convert(self.ex) + str(8-self.ey) +self.extra +"\n"
+        return str(self.piece) + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra +"\n"
         
 def convert(num):
     if num==0:

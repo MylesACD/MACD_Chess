@@ -18,6 +18,7 @@ class Piece(object):
         self.type =type
         self.x= x
         self.y=y
+        self.value = value
         
     def __str__(self):
         return self.type+ m.convert(self.x)+str((8-self.y)) +"\n"

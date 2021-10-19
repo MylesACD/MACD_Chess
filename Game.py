@@ -1,6 +1,8 @@
 import Move as m
 import Piece as p
 import State as s
+import time
+import numpy as np
 
 wk = "\u2654"
 wq = "\u2655"
@@ -17,12 +19,27 @@ bp = "\u265F"
 em = "--"
 
 
+def time_measure(func):
+    start = time.perf_counter()
+    func
+    finish = time.perf_counter()
+    print(int(finish-start))
 
 game_state = s.State()
 game_state.setup_vanilla()
 
 
 
-move = m.Move(wk,0,0,0,1,"")
+move = m.Move(wp,0,6,"",0,4,"")
 
 print(game_state)
+
+game_state = game_state.generateSuccessor(move)
+
+print(game_state)
+
+
+
+
+
+    
