@@ -60,7 +60,7 @@ class State(object):
             
         for piece in pieces:
             if piece.type == bq or piece.type== wq:
-                thing=1
+                
         
         
    

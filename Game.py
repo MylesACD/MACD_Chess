@@ -3,6 +3,7 @@ import Piece as p
 import State as s
 import time
 import numpy as np
+import random
 
 wk = "\u2654"
 wq = "\u2655"
@@ -18,6 +19,9 @@ bn = "\u265E"
 bp = "\u265F"
 em = "--"
 
+#whatever game type is being played the real gamestate must be created
+game_state = s.State()
+game_state.setup_vanilla()
 
 def time_measure(func):
     start = time.perf_counter()
@@ -26,9 +30,16 @@ def time_measure(func):
     print(int(finish-start))
     return rtn
 
-game_state = s.State()
-game_state.setup_vanilla()
+def play_random_move():
+    global game_state
+    valid_moves = game_state.generateMoves()
+    x= random.randint(0, len(valid_moves))
+    game_state = game_state.generateSuccessor(valid_moves[x])
+    
 
+#--------------------Testing stuff-----------------------
+
+play_random_move()
 
 
 move = m.Move(wp,0,6,"",0,4,"")
@@ -39,5 +50,5 @@ game_state =  time_measure(game_state.generateSuccessor(move))
 
 print(game_state)
 
-
+#--------------------------------------------------------------
     
