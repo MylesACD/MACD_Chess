@@ -27,6 +27,7 @@ class State(object):
         # queen =9, 2xrook =10, 2xbishop =6, 2xknight =6, 8xpawn =8
         self.wmat =39
         self.bmat =39
+        self.previousMove
         
     def generateSuccessor(self,move):
         new = copy.deepcopy(self)
@@ -47,6 +48,7 @@ class State(object):
         
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece
+        new.previousMove = move
         return new
     
     
@@ -59,35 +61,27 @@ class State(object):
             pieces = self.blackPieces
             
         for piece in pieces:
-            if piece.type == bq or piece.type== wq:
-                
-        
-        switch (piece.type) {
-			// white pawn
-			case "P":
-
-				// move 1 forward
-				if (board[piece.y - 1][piece.x] == "*")
-					validMoves.add(new Move(piece.x, piece.y, piece.x, piece.y - 1, piece.type, "", ""));
-				// move 2 forward
-				if (piece.y == 6 && board[piece.y - 2][piece.x] == "*" && board[piece.y - 1][piece.x] == "*")
-					validMoves.add(new Move(piece.x, piece.y, piece.x, piece.y - 2, piece.type, "", ""));
-				// take left
-				if (piece.x != 0 && piece.y != 0 && board[piece.y - 1][piece.x - 1] != "*"
+            if piece.type == wp:
+				# move 1 forward
+                if self.board[piece.y - 1][piece.x] == em:
+                    valid_moves.append(m.Move(piece.x, piece.y, "",piece.x,piece.y - 1, piece.type,""))
+				# move 2 forward
+				if piece.y == 6 and self.board[piece.y - 2][piece.x] == em and self.board[piece.y - 1][piece.x] == em:
+                    valid_moves.append(m.Move(piece.x, piece.y, "",piece.x, piece.y - 2, piece.type, ""))
+				# take left
+				if (piece.x != 0 && piece.y != 0 && board[piece.y - 1][piece.x - 1] != em:
 						&& board[piece.y - 1][piece.x - 1].toLowerCase() == board[piece.y - 1][piece.x - 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x - 1, piece.y - 1, piece.type, "x", ""));
-				// take right
+					validMoves.add(new Move(piece.x, piece.y, piece.x - 1, piece.y - 1, piece.type, "x", ""))
+				# take right
 				if (piece.x != 7 && board[piece.y - 1][piece.x + 1] != "*"
 						&& board[piece.y - 1][piece.x + 1].toLowerCase() == board[piece.y - 1][piece.x + 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x + 1, piece.y - 1, piece.type, "x", ""));
-				// en passant
+					validMoves.add(new Move(piece.x, piece.y, piece.x + 1, piece.y - 1, piece.type, "x", ""))
+				# en passant
 				if (previous != null && piece.y == 5 && previous.piece == "o" && previous.ey - previous.sy == 2
 						&& (previous.ex == piece.x - 1 || previous.ex == piece.x + 1)) {
-					validMoves.add(new Move(piece.x, piece.y, previous.ex, previous.ey - 1, piece.type, "x", ""));
-				}
-				break;
-			// black pawn
-			case "o":
+					validMoves.add(new Move(piece.x, piece.y, previous.ex, previous.ey - 1, piece.type, "x", ""))
+				
+			elif piece.type = bp:
 				// move 1 forward
 				if (board[piece.y + 1][piece.x] == "*")
 					validMoves.add(new Move(piece.x, piece.y, piece.x, piece.y + 1, piece.type, "", ""));
@@ -583,11 +577,7 @@ class State(object):
         self.board[0,3] = bq
         self.board[0,4] = bk
         self.board[1,:] = bp
-        self.blackPieces.append(p.Piece(br,0,0,5))
-        self.blackPieces.append(p.Piece(br,7,0,5))
-        
-        
-        
+      
         self.board[7,(0,7)] = wr
         self.board[7,(1,6)] = wn
         self.board[7,(2,5)] = wb
@@ -595,27 +585,26 @@ class State(object):
         self.board[7,4] = wk
         self.board[6,:] = wp
         
-        for (int i = 0; i < 8; i++) {
-			blackPieces.add(new Piece("o", i, 1, 1, false));
-			whitePieces.add(new Piece("P", i, 6, 1, true));
-		}
-		blackPieces.add(new Piece("r", 0, 0, 6, false));
-		blackPieces.add(new Piece("n", 1, 0, 3, false));
-		blackPieces.add(new Piece("b", 2, 0, 3, false));
-		blackPieces.add(new Piece("q", 3, 0, 9, false));
-		blackPieces.add(new Piece("k", 4, 0, 100, false));
-		blackPieces.add(new Piece("b", 5, 0, 3, false));
-		blackPieces.add(new Piece("n", 6, 0, 3, false));
-		blackPieces.add(new Piece("r", 7, 0, 6, false));
+        for i in range(8):
+			self.blackPieces.append(p.Piece(bp, i, 1, 1,0);
+			self.whitePieces.append(p.Piece(wp, i, 6, 1,1);
+		
+		self.blackPieces.append(p.Piece(br, 0, 0, 5,0);
+		self.blackPieces.append(p.Piece(bb, 2, 0, 3,0);
+		self.blackPieces.append(p.Piece(bq, 3, 0, 9,0);
+		self.blackPieces.append(p.Piece(bk, 4, 0, 100,0);
+		self.blackPieces.append(p.Piece(bb, 5, 0, 3,0);
+		self.blackPieces.append(p.Piece(bn, 6, 0, 3,0);
+		self.blackPieces.append(p.Piece(br, 7, 0, 5,0);
 
-		whitePieces.add(new Piece("R", 0, 7, 6, true));
-		whitePieces.add(new Piece("N", 1, 7, 3, true));
-		whitePieces.add(new Piece("B", 2, 7, 3, true));
-		whitePieces.add(new Piece("Q", 3, 7, 9, true));
-		whitePieces.add(new Piece("K", 4, 7, 100, true));
-		whitePieces.add(new Piece("B", 5, 7, 3, true));
-		whitePieces.add(new Piece("N", 6, 7, 3, true));
-		whitePieces.add(new Piece("R", 7, 7, 6, true));
+		self.whitePieces.append(p.Piece(wr, 0, 7, 5,1);
+		self.whitePieces.append(p.Piece(wn, 1, 7, 3,1);
+		self.whitePieces.append(p.Piece(wb, 2, 7, 3,1);
+		self.whitePieces.append(p.Piece(wq, 3, 7, 9,1);
+		self.whitePieces.append(p.Piece(wk, 4, 7, 100,1);
+		self.whitePieces.append(p.Piece(wb, 5, 7, 3,1);
+		self.whitePieces.append(p.Piece(wn, 6, 7, 3,1);
+		self.whitePieces.append(p.Piece(wr, 7, 7, 5,1);
         
         
   

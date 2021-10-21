@@ -14,11 +14,13 @@ bp = "\u265F"
 
 class Piece(object):
     
-    def __init__(self, type, x, y, value):
+    def __init__(self, type, x, y, value, player):
         self.type =type
         self.x= x
         self.y=y
         self.value = value
+        #player =1 for white, player = 0 for black
+        self.player =player
         
     def __str__(self):
         return self.type+ m.convert(self.x)+str((8-self.y)) +"\n"
