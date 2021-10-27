@@ -17,6 +17,9 @@ bn = "\u265E"
 bp = "\u265F"
 em = "--"
 
+white =1
+black =0
+
 class State(object):
     def __init__(self):
         self.blackPieces=[]
@@ -33,14 +36,14 @@ class State(object):
         new = copy.deepcopy(self)
         if move.cap=="x":
             pieces=[]
-            if new.turnNum%2==1:
+            if new.turnNum%2==white:
                 pieces=new.whitePieces
             else:
                 pieces=new.blackPieces
             for piece in pieces:
                 if piece.x==move.ex and piece.y==move.ey:
                     pieces.remove(piece)
-                    if new.turnNum%2==1:
+                    if new.turnNum%2==white:
                         new.bmat-=piece.value
                     else:
                         new.wmat-=piece.value
@@ -61,512 +64,452 @@ class State(object):
             pieces = self.blackPieces
             
         for piece in pieces:
+            
+            #White Pawn Case
             if piece.type == wp:
 				# move 1 forward
-                if self.board[piece.y - 1][piece.x] == em:
-                    valid_moves.append(m.Move(piece.x, piece.y, "",piece.x,piece.y - 1, piece.type,""))
+               
 				# move 2 forward
-				if piece.y == 6 and self.board[piece.y - 2][piece.x] == em and self.board[piece.y - 1][piece.x] == em:
-                    valid_moves.append(m.Move(piece.x, piece.y, "",piece.x, piece.y - 2, piece.type, ""))
-				# take left
-				if (piece.x != 0 && piece.y != 0 && board[piece.y - 1][piece.x - 1] != em:
-						&& board[piece.y - 1][piece.x - 1].toLowerCase() == board[piece.y - 1][piece.x - 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x - 1, piece.y - 1, piece.type, "x", ""))
-				# take right
-				if (piece.x != 7 && board[piece.y - 1][piece.x + 1] != "*"
-						&& board[piece.y - 1][piece.x + 1].toLowerCase() == board[piece.y - 1][piece.x + 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x + 1, piece.y - 1, piece.type, "x", ""))
-				# en passant
-				if (previous != null && piece.y == 5 && previous.piece == "o" && previous.ey - previous.sy == 2
-						&& (previous.ex == piece.x - 1 || previous.ex == piece.x + 1)) {
-					validMoves.add(new Move(piece.x, piece.y, previous.ex, previous.ey - 1, piece.type, "x", ""))
 				
-			elif piece.type = bp:
-				// move 1 forward
-				if (board[piece.y + 1][piece.x] == "*")
-					validMoves.add(new Move(piece.x, piece.y, piece.x, piece.y + 1, piece.type, "", ""));
-				// move 2 forward
-				if (piece.y == 1 && board[piece.y + 2][piece.x] == "*" && board[piece.y + 1][piece.x] == "*")
-					validMoves.add(new Move(piece.x, piece.y, piece.x, piece.y + 2, piece.type, "", ""));
-				// take left
-				if (piece.x != 0 && board[piece.y + 1][piece.x - 1] != "*"
-						&& board[piece.y + 1][piece.x - 1].toUpperCase() == board[piece.y + 1][piece.x - 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x - 1, piece.y + 1, piece.type, "x", ""));
-				// take right
-				if (piece.x != 7 && board[piece.y + 1][piece.x + 1] != "*"
-						&& board[piece.y + 1][piece.x + 1].toUpperCase() == board[piece.y + 1][piece.x + 1])
-					validMoves.add(new Move(piece.x, piece.y, piece.x + 1, piece.y + 1, piece.type, "x", ""));
-				// en passant
-				if (previous != null && piece.y == 4 && previous.piece == "P" && previous.ey - previous.sy == -2
-						&& (previous.ex == piece.x - 1 || previous.ex == piece.x + 1)) {
-					validMoves.add(new Move(piece.x, piece.y, previous.ex, previous.ey + 1, piece.type, "x", ""));
-				}
-				break;
-
-			case "B":
-			case "b":
-				// move nw
-				int tempx = piece.x - 1;
-				int tempy = piece.y - 1;
-				// if the x,y are within the board
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx--;
-						tempy--;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-
-						}
-						break;
-					}
-
-				}
-				// move sw
-				tempx = piece.x - 1;
-				tempy = piece.y + 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx--;
-						tempy++;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-
-						}
-						break;
-					}
-				}
-
-				// move ne
-				tempx = piece.x + 1;
-				tempy = piece.y - 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx++;
-						tempy--;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-						}
-						break;
-					}
-
-				}
-				// move se
-				tempx = piece.x + 1;
-				tempy = piece.y + 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx++;
-						tempy++;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-						}
-						break;
-					}
-
-				}
-				break;
+				# take left
+				
+				# take right
+				
+				# en passant
+				
+            #Black Pawn Case
+            elif piece.type == bp:
+				# move 1 forward
+				
+				# move 2 forward
+				
+				# take left
+				
+				# take right
+				
+				# en passant
+                
+            # All Bishop Case
+            elif piece.type == wb or piece.type ==bb:
+				# move nw
+				tempx = piece.x - 1
+				tempy = piece.y - 1
+				# while the x,y are within the board
+				while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
+					# if the space is empty
+					
+					# elif there is a piece and their color does not match
+					
+				# move sw
+				tempx = piece.x - 1
+				tempy = piece.y + 1
+				while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
+                    # if the space is empty
+					
+					# elif there is a piece and their color does not match
+				
+				# move ne
+				tempx = piece.x + 1
+				tempy = piece.y - 1
+				while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8: 
+    				# if the space is empty
+					
+					# elif there is a piece and their color does not match
+				
+				# move se
+				tempx = piece.x + 1
+				tempy = piece.y + 1
+				while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8: 
+					# if the space is empty
+					
+					# elif there is a piece and their color does not match
 
 			case "r":
 			case "R":
-				// move up
-				tempy = piece.y - 1;
-				while ((tempy > -1 && tempy < 8)) {
-					// move into empty space
-					if (board[tempy][piece.x] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""));
-						tempy--;
-					} else {
-						// take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""));
+				# move up
+				tempy = piece.y - 1
+				while ((tempy > -1 and tempy < 8)) 
+					# move into empty space
+					if (board[tempy][piece.x] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
+						tempy--
+					 else 
+						# take enemy peice
+						if (getPiece(piece.x, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move down
-				tempy = piece.y + 1;
-				while ((tempy > -1 && tempy < 8)) {
-					// move into empty space
-					if (board[tempy][piece.x] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""));
-						tempy++;
-					} else {
-						// take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""));
+				
+				# move down
+				tempy = piece.y + 1
+				while ((tempy > -1 and tempy < 8)) 
+					# move into empty space
+					if (board[tempy][piece.x] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
+						tempy++
+					 else 
+						# take enemy peice
+						if (getPiece(piece.x, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move right
-				tempx = piece.x + 1;
-				while ((tempx > -1 && tempx < 8)) {
-					// move into empty space
-					if (board[piece.y][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""));
-						tempx++;
-					} else {
-						// take enemy peice
-						if (getPiece(tempx, piece.y).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""));
+				
+				# move right
+				tempx = piece.x + 1
+				while ((tempx > -1 and tempx < 8)) 
+					# move into empty space
+					if (board[piece.y][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
+						tempx++
+					 else 
+						# take enemy peice
+						if (getPiece(tempx, piece.y).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
 
-				}
-				// move left
-				tempx = piece.x - 1;
-				while ((tempx > -1 && tempx < 8)) {
-					// move into empty space
-					if (board[piece.y][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""));
-						tempx--;
-					} else {
-						// take enemy piece
-						if (getPiece(tempx, piece.y).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""));
 
-						}
-						break;
-					}
 
-				}
-				break;
+				# move left
+				tempx = piece.x - 1
+				while ((tempx > -1 and tempx < 8)) 
+					# move into empty space
+					if (board[piece.y][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
+						tempx--
+					 else 
+						# take enemy piece
+						if (getPiece(tempx, piece.y).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
+
+						
+						break
+					
+
+				
+				break
 			case "q":
 			case "Q":
-				// move up
-				tempy = piece.y - 1;
-				while ((tempy > -1 && tempy < 8)) {
-					// move into empty space
-					if (board[tempy][piece.x] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""));
-						tempy--;
-					} else {
-						// take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""));
+				# move up
+				tempy = piece.y - 1
+				while ((tempy > -1 and tempy < 8)) 
+					# move into empty space
+					if (board[tempy][piece.x] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
+						tempy--
+					 else 
+						# take enemy peice
+						if (getPiece(piece.x, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move down
-				tempy = piece.y + 1;
-				while ((tempy > -1 && tempy < 8)) {
-					// move into empty space
-					if (board[tempy][piece.x] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""));
-						tempy++;
-					} else {
-						// take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""));
+				
+				# move down
+				tempy = piece.y + 1
+				while ((tempy > -1 and tempy < 8)) 
+					# move into empty space
+					if (board[tempy][piece.x] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
+						tempy++
+					 else 
+						# take enemy peice
+						if (getPiece(piece.x, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move right
-				tempx = piece.x + 1;
-				while ((tempx > -1 && tempx < 8)) {
-					// move into empty space
-					if (board[piece.y][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""));
-						tempx++;
-					} else {
-						// take enemy peice
-						if (getPiece(tempx, piece.y).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""));
+				
+				# move right
+				tempx = piece.x + 1
+				while ((tempx > -1 and tempx < 8)) 
+					# move into empty space
+					if (board[piece.y][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
+						tempx++
+					 else 
+						# take enemy peice
+						if (getPiece(tempx, piece.y).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move left
-				tempx = piece.x - 1;
-				while ((tempx > -1 && tempx < 8)) {
-					// move into empty space
-					if (board[piece.y][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""));
-						tempx--;
-					} else {
-						// take enemy piece
-						if (getPiece(tempx, piece.y).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""));
+				
+				# move left
+				tempx = piece.x - 1
+				while ((tempx > -1 and tempx < 8)) 
+					# move into empty space
+					if (board[piece.y][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
+						tempx--
+					 else 
+						# take enemy piece
+						if (getPiece(tempx, piece.y).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move nw
-				tempx = piece.x - 1;
-				tempy = piece.y - 1;
-				// if the x,y are within the board
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx--;
-						tempy--;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
+				
+				# move nw
+				tempx = piece.x - 1
+				tempy = piece.y - 1
+				# if the x,y are within the board
+				while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					# if the space is empty
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+						tempx--
+						tempy--
+					 else 
+						# if their color does not match
+						if (getPiece(tempx, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
+						
+						break
+					
 
-				}
-				// move sw
-				tempx = piece.x - 1;
-				tempy = piece.y + 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx--;
-						tempy++;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
+				
+				# move sw
+				tempx = piece.x - 1
+				tempy = piece.y + 1
+				while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					# if the space is empty
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+						tempx--
+						tempy++
+					 else 
+						# if their color does not match
+						if (getPiece(tempx, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
 
-						}
-						break;
-					}
-				}
+						
+						break
+					
+				
 
-				// move ne
-				tempx = piece.x + 1;
-				tempy = piece.y - 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx++;
-						tempy--;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-						}
-						break;
-					}
+				# move ne
+				tempx = piece.x + 1
+				tempy = piece.y - 1
+				while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					# if the space is empty
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+						tempx++
+						tempy--
+					 else 
+						# if their color does not match
+						if (getPiece(tempx, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+						
+						break
+					
 
-				}
-				// move se
-				tempx = piece.x + 1;
-				tempy = piece.y + 1;
-				while ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					// if the space is empty
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-						tempx++;
-						tempy++;
-					} else {
-						// if their color does not match
-						if (getPiece(tempx, tempy).white != piece.white) {
-							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-						}
-						break;
-					}
+				
+				# move se
+				tempx = piece.x + 1
+				tempy = piece.y + 1
+				while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					# if the space is empty
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+						tempx++
+						tempy++
+					 else 
+						# if their color does not match
+						if (getPiece(tempx, tempy).white != piece.white) 
+							validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+						
+						break
+					
 
-				}
-				break;
+				
+				break
 			case "N":
 			case "n":
-				// north jump, left
-				tempx = (piece.x - 1);
-				tempy = (piece.y - 2);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// north jump, right
-				tempx = (piece.x + 1);
-				tempy = (piece.y - 2);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// south jump, left
-				tempx = (piece.x - 1);
-				tempy = (piece.y + 2);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// south jump, right
-				tempx = (piece.x + 1);
-				tempy = (piece.y + 2);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// west jump, up
-				tempx = (piece.x - 2);
-				tempy = (piece.y - 1);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// west jump, down
-				tempx = (piece.x - 2);
-				tempy = (piece.y + 1);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// east jump, up
-				tempx = (piece.x + 2);
-				tempy = (piece.y - 1);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// east jump, down
-				tempx = (piece.x + 2);
-				tempy = (piece.y + 1);
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				break;
+				# north jump, left
+				tempx = (piece.x - 1)
+				tempy = (piece.y - 2)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# north jump, right
+				tempx = (piece.x + 1)
+				tempy = (piece.y - 2)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# south jump, left
+				tempx = (piece.x - 1)
+				tempy = (piece.y + 2)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# south jump, right
+				tempx = (piece.x + 1)
+				tempy = (piece.y + 2)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# west jump, up
+				tempx = (piece.x - 2)
+				tempy = (piece.y - 1)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# west jump, down
+				tempx = (piece.x - 2)
+				tempy = (piece.y + 1)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# east jump, up
+				tempx = (piece.x + 2)
+				tempy = (piece.y - 1)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# east jump, down
+				tempx = (piece.x + 2)
+				tempy = (piece.y + 1)
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				break
 			case "k":
 			case "K":
 
-				// up
-				tempx = piece.x;
-				tempy = piece.y - 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// nw
-				tempx = piece.x - 1;
-				tempy = piece.y - 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// ne
-				tempx = piece.x + 1;
-				tempy = piece.y - 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// w
-				tempx = piece.x - 1;
-				tempy = piece.y;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// e
-				tempx = piece.x - 1;
-				tempy = piece.y;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// s
-				tempx = piece.x;
-				tempy = piece.y + 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// sw
-				tempx = piece.x - 1;
-				tempy = piece.y - 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
-				// se
-				tempx = piece.x + 1;
-				tempy = piece.y + 1;
-				if ((tempx > -1 && tempx < 8) && (tempy > -1 && tempy < 8)) {
-					if (board[tempy][tempx] == "*") {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""));
-					} else if (getPiece(tempx, tempy).white != piece.white) {
-						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""));
-					}
-				}
+				# up
+				tempx = piece.x
+				tempy = piece.y - 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# nw
+				tempx = piece.x - 1
+				tempy = piece.y - 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# ne
+				tempx = piece.x + 1
+				tempy = piece.y - 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# w
+				tempx = piece.x - 1
+				tempy = piece.y
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# e
+				tempx = piece.x - 1
+				tempy = piece.y
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# s
+				tempx = piece.x
+				tempy = piece.y + 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# sw
+				tempx = piece.x - 1
+				tempy = piece.y - 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
+				# se
+				tempx = piece.x + 1
+				tempy = piece.y + 1
+				if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+					if (board[tempy][tempx] == "*") 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
+					 else if (getPiece(tempx, tempy).white != piece.white) 
+						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+					
+				
 
-			}
+			
+
+
    
     def __str__(self):
         return str(self.board)+"\n"
@@ -586,25 +529,27 @@ class State(object):
         self.board[6,:] = wp
         
         for i in range(8):
-			self.blackPieces.append(p.Piece(bp, i, 1, 1,0);
-			self.whitePieces.append(p.Piece(wp, i, 6, 1,1);
+			self.blackPieces.append(p.Piece(bp, i, 1, 1,black)
+			self.whitePieces.append(p.Piece(wp, i, 6, 1,white)
 		
-		self.blackPieces.append(p.Piece(br, 0, 0, 5,0);
-		self.blackPieces.append(p.Piece(bb, 2, 0, 3,0);
-		self.blackPieces.append(p.Piece(bq, 3, 0, 9,0);
-		self.blackPieces.append(p.Piece(bk, 4, 0, 100,0);
-		self.blackPieces.append(p.Piece(bb, 5, 0, 3,0);
-		self.blackPieces.append(p.Piece(bn, 6, 0, 3,0);
-		self.blackPieces.append(p.Piece(br, 7, 0, 5,0);
+		self.blackPieces.append(p.Piece(br, 0, 0, 5,black)
+		self.blackPieces.append(p.Piece(bb, 2, 0, 3,black)
+		self.blackPieces.append(p.Piece(bq, 3, 0, 9,black)
+		self.blackPieces.append(p.Piece(bk, 4, 0, 100,black)
+		self.blackPieces.append(p.Piece(bb, 5, 0, 3,black)
+		self.blackPieces.append(p.Piece(bn, 6, 0, 3,black)
+		self.blackPieces.append(p.Piece(br, 7, 0, 5,black)
 
-		self.whitePieces.append(p.Piece(wr, 0, 7, 5,1);
-		self.whitePieces.append(p.Piece(wn, 1, 7, 3,1);
-		self.whitePieces.append(p.Piece(wb, 2, 7, 3,1);
-		self.whitePieces.append(p.Piece(wq, 3, 7, 9,1);
-		self.whitePieces.append(p.Piece(wk, 4, 7, 100,1);
-		self.whitePieces.append(p.Piece(wb, 5, 7, 3,1);
-		self.whitePieces.append(p.Piece(wn, 6, 7, 3,1);
-		self.whitePieces.append(p.Piece(wr, 7, 7, 5,1);
+		self.whitePieces.append(p.Piece(wr, 0, 7, 5,white)
+		self.whitePieces.append(p.Piece(wn, 1, 7, 3,white)
+		self.whitePieces.append(p.Piece(wb, 2, 7, 3,white)
+		self.whitePieces.append(p.Piece(wq, 3, 7, 9,white)
+		self.whitePieces.append(p.Piece(wk, 4, 7, 100,white)
+		self.whitePieces.append(p.Piece(wb, 5, 7, 3,white)
+		self.whitePieces.append(p.Piece(wn, 6, 7, 3,white)
+		self.whitePieces.append(p.Piece(wr, 7, 7, 5,white)
         
         
   
+
+
