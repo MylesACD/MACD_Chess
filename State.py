@@ -54,7 +54,6 @@ class State(object):
         new.previousMove = move
         return new
     
-    
     def generateMoves(self):
         valid_moves = []
         pieces =[]
@@ -128,21 +127,17 @@ class State(object):
 			case "R":
 				# move up
 				tempy = piece.y - 1
-				while ((tempy > -1 and tempy < 8)) 
+				while tempy > -1 and tempy < 8
 					# move into empty space
-					if (board[tempy][piece.x] == "*") 
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
-						tempy--
-					 else 
-						# take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) 
+					if self.board[tempy][piece.x] == em :
+                        
+					# take enemy peice	
+					elif self.board[tempy][piece.x]: 
+						
+						getPiece(piece.x, tempy).white != piece.white) 
 							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
 
-						
-						break
-					
-
-				
+									
 				# move down
 				tempy = piece.y + 1
 				while ((tempy > -1 and tempy < 8)) 
