@@ -4,6 +4,7 @@ import State as s
 import time
 import numpy as np
 import random
+import Collect_Data as cd
 
 wk = "\u2654"
 wq = "\u2655"
@@ -27,7 +28,7 @@ def time_measure(func):
     start = time.perf_counter()
     rtn = func
     finish = time.perf_counter()
-    print(int(finish-start))
+    print("run time: " + str(int(finish-start)))
     return rtn
 
 def play_random_move():
@@ -39,16 +40,12 @@ def play_random_move():
 
 #--------------------Testing stuff-----------------------
 
-play_random_move()
+#play_random_move()
+#move = m.Move(wp,0,6,"",0,4,"")
+#print(game_state)
+#game_state =  time_measure(game_state.generateSuccessor(move))
+#print(game_state)
 
-
-move = m.Move(wp,0,6,"",0,4,"")
-
-print(game_state)
-
-game_state =  time_measure(game_state.generateSuccessor(move))
-
-print(game_state)
-
+time_measure(cd.parse_from_pgn())
 #--------------------------------------------------------------
     
