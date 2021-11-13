@@ -18,7 +18,7 @@ def parse_from_pgn():
     fobj = open("PGN Only.txt","w",encoding="utf8",errors="ignore")
     pgn_list=[]
     # have to cap the memory usage
-    for i in range(1000000):
+    while len(pgn_list)<200000:
         line = data_base.readline()
 
         if line[0]!="[" and line!="\n":
@@ -37,7 +37,6 @@ def parse_from_pgn():
                 pgn = pgn.replace("\n", "")
                 pgn = pgn+"\n"
                 game_result = pgn[-4:-1]
-            
                 if len(pgn)<10:
                    if prints: print("pgn too short")
                 elif "$" in pgn or "{" in pgn:
@@ -54,7 +53,7 @@ def parse_from_pgn():
     fobj.close()
     
     
-parse_from_pgn()
+#parse_from_pgn()
 
 def debug_requests_on():
     '''Switches on logging of the requests module.'''
