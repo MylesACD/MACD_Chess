@@ -46,6 +46,8 @@ def play_random_move():
 #game_state =  time_measure(game_state.generateSuccessor(move))
 #print(game_state)
 
-time_measure(cd.parse_from_pgn())
+
+print(s.get_color(bp))
+
 #--------------------------------------------------------------
     

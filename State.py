@@ -20,6 +20,14 @@ em = "--"
 white =1
 black =0
 
+def get_color(piece_type):
+    piece_type = piece_type[2:]
+    print(piece_type)
+    if int(piece_type,16) < 0x265A:
+        return 1
+    else:
+        return 0
+
 class State(object):
     def __init__(self):
         self.blackPieces=[]
@@ -30,7 +38,7 @@ class State(object):
         # queen =9, 2xrook =10, 2xbishop =6, 2xknight =6, 8xpawn =8
         self.wmat =39
         self.bmat =39
-        self.previousMove
+        self.previousMove=None
         
     def generateSuccessor(self,move):
         new = copy.deepcopy(self)
@@ -61,7 +69,7 @@ class State(object):
             pieces = self.whitePieces
         else:
             pieces = self.blackPieces
-            
+        """
         for piece in pieces:
             
             #White Pawn Case
@@ -134,57 +142,39 @@ class State(object):
 					# take enemy peice	
 					elif self.board[tempy][piece.x]: 
 						
-						getPiece(piece.x, tempy).white != piece.white) 
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
+					
 
 									
 				# move down
-				tempy = piece.y + 1
-				while ((tempy > -1 and tempy < 8)) 
-					# move into empty space
-					if (board[tempy][piece.x] == "*") 
-						validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
-						tempy++
-					 else 
-						# take enemy peice
-						if (getPiece(piece.x, tempy).white != piece.white) 
-							validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
-
-						
-						break
-					
+    			tempy = piece.y + 1
+    				while tempy > -1 and tempy < 8
+    					# move into empty space
+    					if self.board[tempy][piece.x] == em :
+                            
+    					# take enemy peice	
+    					elif self.board[tempy][piece.x]: 
 
 				
 				# move right
-				tempx = piece.x + 1
-				while ((tempx > -1 and tempx < 8)) 
-					# move into empty space
-					if (board[piece.y][tempx] == "*") 
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
-						tempx++
-					 else 
-						# take enemy peice
-						if (getPiece(tempx, piece.y).white != piece.white) 
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
-
-						
+    			tempx = piece.x + 1
+    				while tempx > -1 and tempx < 8
+    					# move into empty space
+    					if self.board[piece.y][tempx] == em :
+                            
+    					# take enemy peice	
+    					elif self.board[piece.y][tempx]: 
 
 
 
 				# move left
-				tempx = piece.x - 1
-				while ((tempx > -1 and tempx < 8)) 
-					# move into empty space
-					if (board[piece.y][tempx] == "*") 
-						validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
-						tempx--
-					 else 
-						# take enemy piece
-						if (getPiece(tempx, piece.y).white != piece.white) 
-							validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
-
-						
-						break
+				tempx = piece.x + 1
+    				while tempx > -1 and tempx < 8
+    					# move into empty space
+    					if self.board[piece.y][tempx] == em :
+                            
+    					# take enemy peice	
+    					elif self.board[piece.y][tempx]: 
+	
 					
 
 				
@@ -501,13 +491,14 @@ class State(object):
 						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
 					
 				
-
-			
-
+                
+		"""	
+        
 
    
     def __str__(self):
         return str(self.board)+"\n"
+    
     def setup_vanilla(self):
         self.board[0,(0,7)] = br
         self.board[0,(1,6)] = bn
@@ -524,27 +515,22 @@ class State(object):
         self.board[6,:] = wp
         
         for i in range(8):
-			self.blackPieces.append(p.Piece(bp, i, 1, 1,black)
-			self.whitePieces.append(p.Piece(wp, i, 6, 1,white)
-		
-		self.blackPieces.append(p.Piece(br, 0, 0, 5,black)
-		self.blackPieces.append(p.Piece(bb, 2, 0, 3,black)
-		self.blackPieces.append(p.Piece(bq, 3, 0, 9,black)
-		self.blackPieces.append(p.Piece(bk, 4, 0, 100,black)
-		self.blackPieces.append(p.Piece(bb, 5, 0, 3,black)
-		self.blackPieces.append(p.Piece(bn, 6, 0, 3,black)
-		self.blackPieces.append(p.Piece(br, 7, 0, 5,black)
+            self.blackPieces.append(p.Piece(bp, i, 1, 1, black))
+            self.whitePieces.append(p.Piece(wp, i, 6, 1, white))
+            
+        self.blackPieces.append(p.Piece(br, 0, 0, 5, black))
+        self.blackPieces.append(p.Piece(bb, 2, 0, 3, black))
+        self.blackPieces.append(p.Piece(bq, 3, 0, 9, black))
+        self.blackPieces.append(p.Piece(bk, 4, 0, 100, black))
+        self.blackPieces.append(p.Piece(bb, 5, 0, 3,black))
+        self.blackPieces.append(p.Piece(bn, 6, 0, 3,black))
+        self.blackPieces.append(p.Piece(br, 7, 0, 5,black))
 
-		self.whitePieces.append(p.Piece(wr, 0, 7, 5,white)
-		self.whitePieces.append(p.Piece(wn, 1, 7, 3,white)
-		self.whitePieces.append(p.Piece(wb, 2, 7, 3,white)
-		self.whitePieces.append(p.Piece(wq, 3, 7, 9,white)
-		self.whitePieces.append(p.Piece(wk, 4, 7, 100,white)
-		self.whitePieces.append(p.Piece(wb, 5, 7, 3,white)
-		self.whitePieces.append(p.Piece(wn, 6, 7, 3,white)
-		self.whitePieces.append(p.Piece(wr, 7, 7, 5,white)
-        
-        
-  
-
-
+        self.whitePieces.append(p.Piece(wr, 0, 7, 5,white))
+        self.whitePieces.append(p.Piece(wn, 1, 7, 3,white))
+        self.whitePieces.append(p.Piece(wb, 2, 7, 3,white))
+        self.whitePieces.append(p.Piece(wq, 3, 7, 9,white))
+        self.whitePieces.append(p.Piece(wk, 4, 7, 100,white))
+        self.whitePieces.append(p.Piece(wb, 5, 7, 3,white))
+        self.whitePieces.append(p.Piece(wn, 6, 7, 3,white))
+        self.whitePieces.append(p.Piece(wr, 7, 7, 5,white))
