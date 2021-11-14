@@ -21,12 +21,11 @@ white =1
 black =0
 
 def get_color(piece_type):
-    piece_type = piece_type[2:]
-    print(piece_type)
-    if int(piece_type,16) < 0x265A:
-        return 1
-    else:
-        return 0
+   rep = hex(ord(piece_type))
+   if int(rep,16) < 0x265A:
+       return 1
+   else:
+       return 0
 
 class State(object):
     def __init__(self):
@@ -69,13 +68,13 @@ class State(object):
             pieces = self.whitePieces
         else:
             pieces = self.blackPieces
-        """
+        
         for piece in pieces:
             
             #White Pawn Case
             if piece.type == wp:
 				# move 1 forward
-               
+                
 				# move 2 forward
 				
 				# take left

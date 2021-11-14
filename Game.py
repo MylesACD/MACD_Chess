@@ -47,7 +47,5 @@ def play_random_move():
 #print(game_state)
 
 
-print(s.get_color(bp))
-
 #--------------------------------------------------------------
     
