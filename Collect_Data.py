@@ -17,7 +17,7 @@ def parse_from_pgn():
     data_base = open(os.getcwd() + "\\DATABASE - Back Up.pgn","r",encoding="utf8",errors="ignore")
     fobj = open("PGN Only.txt","w",encoding="utf8",errors="ignore")
     pgn_list=[]
-    # have to cap the memory usage
+    # have to cap the final file size
     while len(pgn_list)<200000:
         line = data_base.readline()
 
@@ -83,10 +83,8 @@ def download_tempo(num_grabs):
     fobj = open("test data.txt","w")
     
     pgn_list=[]
-    debug_requests_off()
-    last_success_time=time.time()
     failed_attempts=0
-    total_time =0
+
     
     while len(pgn_list)<num_grabs:
         
@@ -97,9 +95,10 @@ def download_tempo(num_grabs):
         
         #split all the lines of the requested pgn
         data = session.get(temp_url)
-        parse = str(data.content).split("\\n")
+      
+        parse = str(data.content).split("\n")
         if data.status_code!=200:
-            #print(data.status_code)
+            print(data.status_code)
             pass
         elif parse == "b''": pass
     
@@ -109,12 +108,6 @@ def download_tempo(num_grabs):
                 pgn_list.append(s)
                 fobj.write(s)
                 fobj.write("\n")
-                
-                print(time.time()-last_success_time)
-                #total_time+=time.time()-last_success_time
-                #last_success_time=time.time()
-               
-                failed_attempts=0
                 break
     fobj.close()
 
