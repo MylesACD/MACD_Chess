@@ -23,9 +23,9 @@ class Move(object):
         self.extra =extra
         
     def __str__(self):
-        return str(self.piece) + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra +"\n"
+        return str(self.piece) + convert_to_letter(self.sx) +str(8-self.sy)+self.cap + convert_to_letter(self.ex) + str(8-self.ey) +self.extra +"\n"
         
-def convert(num):
+def convert_to_letter(num):
     if num==0:
         return "a"
     elif num==1:

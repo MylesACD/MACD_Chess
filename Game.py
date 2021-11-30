@@ -41,10 +41,10 @@ def play_random_move():
 #--------------------Testing stuff-----------------------
 
 #play_random_move()
-#move = m.Move(wp,0,6,"",0,4,"")
-#print(game_state)
-#game_state =  time_measure(game_state.generateSuccessor(move))
-#print(game_state)
+move = m.Move(wp,0,6,"",0,4,"")
+print(game_state)
+game_state =  game_state.generateSuccessor(move)
+print(game_state)
 
 
 #--------------------------------------------------------------

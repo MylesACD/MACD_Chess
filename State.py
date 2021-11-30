@@ -59,8 +59,9 @@ class State(object):
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece
         new.previousMove = move
+        new.turnNum+=1
         return new
-    
+    """        
     def generateMoves(self):
         valid_moves = []
         pieces =[]
@@ -490,13 +491,12 @@ class State(object):
 						validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
 					
 				
-                
-		"""	
+                """
         
 
    
     def __str__(self):
-        return str(self.board)+"\n"
+        return str(self.board)+"\n"+str(self.turnNum)
     
     def setup_vanilla(self):
         self.board[0,(0,7)] = br
