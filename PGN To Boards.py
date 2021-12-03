@@ -47,14 +47,15 @@ def gen_board(move_text,state):
     move_text = move_text.replace("#","")
     
     possible_moves = state.generate_all_moves()
-    print(len(possible_moves))
-    
     for move in possible_moves:
+        
+        clean1 = move.short().replace("+", "").replace("#", "")
+        clean2 = str(move).replace("+", "").replace("#", "")
         # other than checks if the move strings are the same
-        if str(move).replace("+", "").replace("#", "") == move_text:
-            return state.generateSuccesor(move)
+        if clean1 == move_text or clean2==move_text:
+            return state.generateSuccessor(move)
     
-    print("failed for:" , move_text)
+    print("failed for: " , move_text)
 
 def build_game(game_line):
     split = game_line.split(" ")
@@ -64,7 +65,7 @@ def build_game(game_line):
     moves = [string for string in split if "." not in string]
     moves = moves[:-1]
     # for testing only
-    moves = moves[:2]
+    moves = moves[:3]
     boards=[str(state)]
     
     for move_text in moves:

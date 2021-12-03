@@ -23,8 +23,20 @@ class Move(object):
         self.extra =extra
         
     def __str__(self):
-        return str(self.piece) + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra +"\n"
+        s = self.piece.translate_to_pgn()
+        # pawn case
+        if s=="":
+            if self.cap=="x":
+                return convert(self.ex) +   str(8-self.ey) + self.extra
+            else: 
+                return convert(self.ex) + self.cap +  str(8-self.ey) + self.extra
+        else:     
+            return self.piece.translate_to_pgn() + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra
         
+    def short(self):
+        return self.piece.translate_to_pgn()+self.cap + convert(self.ex) + str(8-self.ey) +self.extra
+    
+    
 def convert(num):
     if num==0:
         return "a"
@@ -42,3 +54,4 @@ def convert(num):
         return "g"
     elif num==7:
         return "h"
+

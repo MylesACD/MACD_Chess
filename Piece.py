@@ -24,3 +24,17 @@ class Piece(object):
         
     def __str__(self):
         return self.type+ m.convert(self.x)+str((8-self.y)) +"\n"
+    
+    def translate_to_pgn(self):
+        if self.type == wk or self.type == bk:
+            return "K"
+        elif self.type == wp or self.type == bp:
+            return ""
+        elif self.type == wb or self.type == bb:
+            return "B"
+        elif self.type == wn or self.type == bn:
+            return "N"
+        elif self.type == wr or self.type == br:
+            return "R"
+        elif self.type == wq or self.type == bq:
+            return "Q"
