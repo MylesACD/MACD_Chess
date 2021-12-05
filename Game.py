@@ -31,21 +31,21 @@ def time_measure(func):
     print("run time: " + str(int(finish-start)))
     return rtn
 
-def play_random_move():
-    global game_state
-    valid_moves = game_state.generateMoves()
-    x= random.randint(0, len(valid_moves))
-    game_state = game_state.generateSuccessor(valid_moves[x])
+def play_random_move(state):
+    valid_moves = state.generate_all_moves()
+    x= random.randint(0, len(valid_moves)-1)
+    print(valid_moves[x])
+    state = state.generateSuccessor(valid_moves[x])
+    return state
     
 
 #--------------------Testing stuff-----------------------
 
-#play_random_move()
-move = m.Move(wp,0,6,"",0,4,"")
-print(game_state)
-game_state =  game_state.generateSuccessor(move)
-print(game_state)
 
+
+for i in range(30):
+    game_state = play_random_move(game_state)
+    print(game_state)
 
 #--------------------------------------------------------------
     

@@ -41,23 +41,67 @@ class State(object):
         
     def generateSuccessor(self,move):
         new = copy.deepcopy(self)
+       
+        curr_pieces=[]
+        other_pieces=[]
+        if new.turnNum%2==white:
+            curr_pieces=new.whitePieces
+            other_pieces = new.blackPieces
+        else:
+            other_pieces=new.whitePieces
+            curr_pieces = new.blackPieces
+        # remove a captured piece
         if move.cap=="x":
-            pieces=[]
-            if new.turnNum%2==white:
-                pieces=new.whitePieces
-            else:
-                pieces=new.blackPieces
-            for piece in pieces:
+            for piece in other_pieces:
                 if piece.x==move.ex and piece.y==move.ey:
-                    pieces.remove(piece)
+                    other_pieces.remove(piece)
                     if new.turnNum%2==white:
                         new.bmat-=piece.value
                     else:
                         new.wmat-=piece.value
+                    break
+        
+        # update the piece(s) that moved
+        if "O" in move.extra:
+            
+            y=0
+            if new.turnNum%2==white:
+                y=7
+
+            else:
+                y=0
+                
+            # long castle
+            if "O-O-O" in move.extra:
+                
+                rook  = [piece for piece in curr_pieces if piece.x==0 and (piece.y==0 or piece.y==7)][0]
+                
+                new.board[y,3] = rook.type
+                new.board[y,0] = em
+                rook.x = 3
+                
+            # short castle
+            else:
+               
+                rook  = [piece for piece in curr_pieces if piece.x==7 and (piece.y==0 or piece.y==7)][0]
+                #print(rook)
+                new.board[y,5] = rook.type
+                new.board[y,7] = em
+                rook.x = 5
+              
+            
+        # update the piece referred to by move
+        for piece in curr_pieces:
+                
+            if piece.x==move.sx and piece.y==move.sy:
+                piece.x = move.ex
+                piece.y=move.ey
+                break
                     
         
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece.type
+        
         new.previousMove = move
         new.turnNum+=1
         return new
@@ -131,7 +175,7 @@ class State(object):
                     else: 
                         # if there is a piece and their color does not match
                         if get_color(self.board[tempy,tempx]) != piece.color:
-                            all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
                         # there is a piece blocking wether opponent or not
                         break
                 # move sw
@@ -148,7 +192,7 @@ class State(object):
                     else: 
                         # if there is a piece and their color does not match
                         if get_color(self.board[tempy,tempx]) != piece.color:
-                            all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
                         # there is a piece blocking wether opponent or not
                         break
                 # move ne
@@ -165,7 +209,7 @@ class State(object):
                     else: 
                         # if there is a piece and their color does not match
                         if get_color(self.board[tempy,tempx]) != piece.color:
-                            all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
                         # there is a piece blocking wether opponent or not
                         break
                     # move se
@@ -182,7 +226,7 @@ class State(object):
                     else: 
                         # if there is a piece and their color does not match
                         if get_color(self.board[tempy,tempx]) != piece.color:
-                            all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
                         # there is a piece blocking wether opponent or not
                         break
                     
@@ -255,290 +299,321 @@ class State(object):
                         all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
                     
             
-            """
-            case "r":
-            case "R":
+  
+            elif piece.type ==wr or piece.type==br:
                 # move up
                 tempy = piece.y - 1
-                while tempy > -1 and tempy < 8
+                while tempy > -1 and tempy < 8:
                     # move into empty space
                     if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
                         
                     # take enemy peice    
-                    elif self.board[tempy][piece.x]: 
+                    else:
+                    
+                        if get_color(self.board[tempy][piece.x])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                        break
+                    tempy-=1
+                
+                 # move down
+                tempy = piece.y + 1
+                while tempy > -1 and tempy < 8:
+                    # move into empty space
+                    if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
                         
+                    # take enemy peice    
+                    else:
+                        if get_color(self.board[tempy][piece.x])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                    
+                        break
+                    tempy+=1
                     
 
-                                    
-                # move down
-                tempy = piece.y + 1
-                    while tempy > -1 and tempy < 8
-                        # move into empty space
-                        if self.board[tempy][piece.x] == em :
-                            
-                        # take enemy peice    
-                        elif self.board[tempy][piece.x]: 
-
-                
-                # move right
+               # move right
                 tempx = piece.x + 1
-                    while tempx > -1 and tempx < 8
-                        # move into empty space
-                        if self.board[piece.y][tempx] == em :
-                            
-                        # take enemy peice    
-                        elif self.board[piece.y][tempx]: 
-
-
-
+                while tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
+                        
+                    # take enemy peice    
+                    else:
+                        if get_color(self.board[piece.y][tempx])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
+                        break
+                    tempx+=1
+                    
                 # move left
-                tempx = piece.x + 1
-                    while tempx > -1 and tempx < 8
-                        # move into empty space
-                        if self.board[piece.y][tempx] == em :
-                            
-                        # take enemy peice    
-                        elif self.board[piece.y][tempx]: 
+                tempx = piece.x -1 
+                while tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
+                        
+                     #there is a piece there  
+                    else: 
+                        # take enemy peice 
+                        if get_color(self.board[piece.y][tempx])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
+                        break
+                    tempx-=1
     
                     
 
-                
-                break
-            case "q":
-            case "Q":
+             
+            elif piece.type==bq or piece.type==wq:
                 # move up
                 tempy = piece.y - 1
-                while ((tempy > -1 and tempy < 8)) 
+                while tempy > -1 and tempy < 8:
                     # move into empty space
-                    if (board[tempy][piece.x] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
-                        tempy--
-                     else 
-                        # take enemy peice
-                        if (getPiece(piece.x, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
-
+                    if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
                         
-                        break
+                    # take enemy peice    
+                    else:
                     
-
+                        if get_color(self.board[tempy][piece.x])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                        break
+                    tempy-=1
                 
-                # move down
+                 # move down
                 tempy = piece.y + 1
-                while ((tempy > -1 and tempy < 8)) 
+                while tempy > -1 and tempy < 8:
                     # move into empty space
-                    if (board[tempy][piece.x] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "", ""))
-                        tempy++
-                     else 
-                        # take enemy peice
-                        if (getPiece(piece.x, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, piece.x, tempy, piece.type, "x", ""))
-
+                    if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
                         
+                    # take enemy peice    
+                    else:
+                        if get_color(self.board[tempy][piece.x])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                    
                         break
+                    tempy+=1
                     
 
-                
-                # move right
+               # move right
                 tempx = piece.x + 1
-                while ((tempx > -1 and tempx < 8)) 
+                while tempx > -1 and tempx < 8:
                     # move into empty space
-                    if (board[piece.y][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
-                        tempx++
-                     else 
-                        # take enemy peice
-                        if (getPiece(tempx, piece.y).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
-
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
                         
+                       
+                    else:
+                         # take enemy peice
+                        if get_color(self.board[piece.y][tempx])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
                         break
+                    tempx+=1
                     
-
-                
                 # move left
-                tempx = piece.x - 1
-                while ((tempx > -1 and tempx < 8)) 
+                tempx = piece.x -1 
+                while tempx > -1 and tempx < 8:
                     # move into empty space
-                    if (board[piece.y][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "", ""))
-                        tempx--
-                     else 
-                        # take enemy piece
-                        if (getPiece(tempx, piece.y).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, piece.y, piece.type, "x", ""))
-
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
                         
+                     #there is a piece there  
+                    else: 
+                        # take enemy peice 
+                        if get_color(self.board[piece.y][tempx])!=piece.color: 
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
                         break
+                    tempx-=1
                     
-
-                
                 # move nw
                 tempx = piece.x - 1
                 tempy = piece.y - 1
-                # if the x,y are within the board
-                while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+                # while the x,y are within the board
+                while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
                     # if the space is empty
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                        tempx--
-                        tempy--
-                     else 
-                        # if their color does not match
-                        if (getPiece(tempx, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-
-                        
-                        break
+                    if self.board[tempy,tempx]==em:
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        tempx-=1
+                        tempy-=1
                     
-
-                
+                    else: 
+                        # if there is a piece and their color does not match
+                        if get_color(self.board[tempy,tempx]) != piece.color:
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                        # there is a piece blocking wether opponent or not
+                        break
                 # move sw
                 tempx = piece.x - 1
                 tempy = piece.y + 1
-                while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+                # while the x,y are within the board
+                while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
                     # if the space is empty
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                        tempx--
-                        tempy++
-                     else 
-                        # if their color does not match
-                        if (getPiece(tempx, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-
-                        
-                        break
+                    if self.board[tempy,tempx]==em:
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        tempx-=1
+                        tempy+=1
                     
-                
-
+                    else: 
+                        # if there is a piece and their color does not match
+                        if get_color(self.board[tempy,tempx]) != piece.color:
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                        # there is a piece blocking wether opponent or not
+                        break
                 # move ne
                 tempx = piece.x + 1
                 tempy = piece.y - 1
-                while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
+                # while the x,y are within the board
+                while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
                     # if the space is empty
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                        tempx++
-                        tempy--
-                     else 
-                        # if their color does not match
-                        if (getPiece(tempx, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                        
+                    if self.board[tempy,tempx]==em:
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        tempx+=1
+                        tempy-=1
+                    
+                    else: 
+                        # if there is a piece and their color does not match
+                        if get_color(self.board[tempy,tempx]) != piece.color:
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                        # there is a piece blocking wether opponent or not
+                        break
+                    # move se
+                tempx = piece.x + 1
+                tempy = piece.y + 1
+                # while the x,y are within the board
+                while tempx > -1 and tempx < 8 and tempy > -1 and tempy < 8:
+                    # if the space is empty
+                    if self.board[tempy,tempx]==em:
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        tempx+=1
+                        tempy+=1
+                    
+                    else: 
+                        # if there is a piece and their color does not match
+                        if get_color(self.board[tempy,tempx]) != piece.color:
+                            all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                        # there is a piece blocking wether opponent or not
                         break
                     
-
-                
-                # move se
-                tempx = piece.x + 1
-                tempy = piece.y + 1
-                while ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    # if the space is empty
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                        tempx++
-                        tempy++
-                     else 
-                        # if their color does not match
-                        if (getPiece(tempx, tempy).white != piece.white) 
-                            validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
+                    
+            # king moves
+            elif piece.type==bk or piece.type==wk:
+                # move N
+                tempy = piece.y - 1
+                if tempy > -1 and tempy < 8:
+                    # move into empty space
+                    if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
                         
-                        break
-                    
-
-                
-                break
-            case "k":
-            case "K":
-
-                # up
-                tempx = piece.x
-                tempy = piece.y - 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # nw
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][piece.x])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                        
+                # move W
                 tempx = piece.x - 1
-                tempy = piece.y - 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # ne
+                if tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[piece.y][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
+                        
+                # move E
                 tempx = piece.x + 1
-                tempy = piece.y - 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
+                if tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[piece.y][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,piece.y,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[piece.y][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,piece.y,""))
                 
-                # w
-                tempx = piece.x - 1
-                tempy = piece.y
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # e
-                tempx = piece.x - 1
-                tempy = piece.y
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # s
-                tempx = piece.x
+                # move S
                 tempy = piece.y + 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # sw
-                tempx = piece.x - 1
+                if tempy > -1 and tempy < 8:
+                    # move into empty space
+                    if self.board[tempy][piece.x] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",piece.x,tempy,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][piece.x])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",piece.x,tempy,""))
+                        
+                # move NW
                 tempy = piece.y - 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                    
-                
-                # se
+                tempx = piece.x - 1
+                if tempy > -1 and tempy < 8 and tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[tempy][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                # move SW
+                tempy = piece.y + 1
+                tempx = piece.x - 1
+                if tempy > -1 and tempy < 8 and tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[tempy][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                        
+                # move SE
+                tempy = piece.y + 1
                 tempx = piece.x + 1
-                tempy = piece.y + 1
-                if ((tempx > -1 and tempx < 8) and (tempy > -1 and tempy < 8)) 
-                    if (board[tempy][tempx] == "*") 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "", ""))
-                     else if (getPiece(tempx, tempy).white != piece.white) 
-                        validMoves.add(new Move(piece.x, piece.y, tempx, tempy, piece.type, "x", ""))
-                """        
+                if tempy > -1 and tempy < 8 and tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[tempy][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                
+                # move NE
+                tempy = piece.y - 1
+                tempx = piece.x + 1
+                if tempy > -1 and tempy < 8 and tempx > -1 and tempx < 8:
+                    # move into empty space
+                    if self.board[tempy][tempx] == em :
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"",tempx,tempy,""))
+                        
+                    # take enemy peice    
+                    elif get_color(self.board[tempy][tempx])!=piece.color: 
+                        all_moves.append(m.Move(piece,piece.x,piece.y,"x",tempx,tempy,""))
+                
+                # castling logic
+                x = piece.x
+                y = piece.y
+                # TODO checking and previously moving is an issues
+                # add 4 flags to state to keep track of blc, wlc, bsc, and wsc
+                if x == 4:
+                    #long castle
+                    if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and (self.board[y,x-4]==wr or self.board[y,x-4]==br):
+                        all_moves.append(m.Move(piece,x,y,"",x-2,y,"O-O-O"))
+                        
+                    #short castle    
+                    if self.board[y,x+1]==em and self.board[y,x+2]==em and (self.board[y,x+3]==wr or self.board[y,x+3]==br):
+                        all_moves.append(m.Move(piece,x,y,"",x+2,y,"O-O"))
+            
+            
+            
+        if len(all_moves) ==0:
+            print("no moves")
         return all_moves
                 
         
 
    
     def __str__(self):
-        return str(self.board)+"\n"+str(self.turnNum)
+        return str(self.turnNum)+"\n"+ str(self.board)
     
     def setup_vanilla(self):
         self.board[0,(0,7)] = br

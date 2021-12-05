@@ -24,6 +24,12 @@ class Move(object):
         
     def __str__(self):
         s = self.piece.translate_to_pgn()
+        
+        # castle case
+        if len(self.extra)>1 and self.extra[0] == "O":
+            return self.extra
+        
+        
         # pawn case
         if s=="":
             if self.cap=="x":

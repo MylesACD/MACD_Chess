@@ -1,7 +1,7 @@
 import State as s
 import Move as m
 import Piece as p
-
+import numpy as np
 
 wk = "\u2654"
 wq = "\u2655"
@@ -47,15 +47,18 @@ def gen_board(move_text,state):
     move_text = move_text.replace("#","")
     
     possible_moves = state.generate_all_moves()
+    #print("----------------------------")
     for move in possible_moves:
         
         clean1 = move.short().replace("+", "").replace("#", "")
         clean2 = str(move).replace("+", "").replace("#", "")
+        #print(clean2)
         # other than checks if the move strings are the same
         if clean1 == move_text or clean2==move_text:
             return state.generateSuccessor(move)
     
     print("failed for: " , move_text)
+
 
 def build_game(game_line):
     split = game_line.split(" ")
@@ -65,17 +68,34 @@ def build_game(game_line):
     moves = [string for string in split if "." not in string]
     moves = moves[:-1]
     # for testing only
-    moves = moves[:3]
-    boards=[str(state)]
+    boards=[]
     
     for move_text in moves:
         state = gen_board(move_text, state)
         if state:
-            boards.append(state)
+            data_object = np.reshape(state.board,-1)
+            data_object = [x for x in data_object]
+            data_object.insert(0, state.turnNum%2)
+            data_object.append(result)
+            boards.append(data_object)
+
 
     return boards
 
-bs = build_game(pgn)
+def build_sets():
+    full = open("PGN Only.txt","r")
+    testing = open("test set.txt","w",encoding="utf-8") 
+    
+    
+    for board in build_game(pgn):
+        #cleaning for the text file
+        string = str(board)
+        string = string.replace("'", "")
+        string =string.replace("[", "")
+        string =string.replace("]", "")
+        string =string.replace(" ", "")
+        testing.write(string+"\n")
+    
 
-for grid in bs:
-    print(grid)
+build_sets()
+
