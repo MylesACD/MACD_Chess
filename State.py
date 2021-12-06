@@ -31,7 +31,7 @@ class State(object):
     def __init__(self):
         self.blackPieces=[]
         self.whitePieces=[]
-        self.board=np.chararray((8,8),unicode=True,itemsize=2)
+        self.board=np.chararray((8,8),unicode=True,itemsize=4)
         self.board[:]=em
         self.turnNum =1
         # queen =9, 2xrook =10, 2xbishop =6, 2xknight =6, 8xpawn =8
@@ -62,6 +62,10 @@ class State(object):
                     break
         
         # update the piece(s) that moved
+        
+        new.board[move.sy][move.sx] = em
+        new.board[move.ey][move.ex] = move.piece.type
+        
         if "O" in move.extra:
             
             y=0
@@ -89,7 +93,30 @@ class State(object):
                 new.board[y,7] = em
                 rook.x = 5
               
+        #promotion case
+        elif "=" in move.extra:
+            # depending on color
+            # change the display on the board
+            # find the piece in the piece lists and update its type
+            piece = [piece for piece in curr_pieces if piece.x==move.sx and piece.y==move.sy][0]
             
+            if new.turnNum%2==1:
+                if "Q" in move.extra:
+                    piece.type = wq
+                    piece.value = 9
+                else:
+                    piece.type=wn
+                    piece.value = 3
+                    
+            else:
+                if "Q" in move.extra:
+                    piece.type = bq
+                    piece.value = 9
+                else:
+                    piece.type=bn
+                    piece.value = 3
+                
+            new.board[move.ey,move.ex] ==piece.type
         # update the piece referred to by move
         for piece in curr_pieces:
                 
@@ -97,10 +124,8 @@ class State(object):
                 piece.x = move.ex
                 piece.y=move.ey
                 break
-                    
+          
         
-        new.board[move.sy][move.sx] = em
-        new.board[move.ey][move.ex] = move.piece.type
         
         new.previousMove = move
         new.turnNum+=1
@@ -135,7 +160,7 @@ class State(object):
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y-1,""))
                 #en passant
                 if self.previousMove and piece.y == 4 and self.previousMove.piece.type == bp and self.previousMove.ey - self.previousMove.sy == 2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
-                    all_moves.add(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey - 1,""))
+                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey - 1,""))
 
             #Black Pawn Case
             elif piece.type == bp:
@@ -155,7 +180,7 @@ class State(object):
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y+1,""))
                 #en passant
                 if self.previousMove and piece.y == 5 and self.previousMove.piece.type == wp and self.previousMove.ey - self.previousMove.sy == -2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
-                    all_moves.add(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey + 1,""))
+                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey + 1,""))
 
                 
             
@@ -607,6 +632,16 @@ class State(object):
             
         if len(all_moves) ==0:
             print("no moves")
+        #add promotions
+        for move in all_moves:
+            # if the piece is a pawn and at one of the far sides
+            if (move.piece.type==wp or move.piece.type==bp) and (move.ey==0 or move.ey==7) and "=" not in move.extra:
+                knight = copy.copy(move)
+                knight.extra="=N"
+                move.extra="=Q"
+                all_moves.append(knight)
+                
+
         return all_moves
                 
         
@@ -614,6 +649,51 @@ class State(object):
    
     def __str__(self):
         return str(self.turnNum)+"\n"+ str(self.board)
+    
+    def convert_to_num(self):
+        temp = copy.deepcopy(self.board)
+        output = np.reshape(temp, -1)
+        # white is negative
+        # black is positive
+        
+        #pawn 1
+        #knight 3
+        #bishop 4
+        # rook 5
+        # queen 9
+        # king 100
+        for i in range(len(output)):
+            
+            if output[i]==em:
+                output[i]=0
+            elif output[i]==bp:
+                output[i] = 1
+            elif output[i]==bn:
+                output[i] = 3
+            elif output[i]==bb:
+                output[i] = 4
+            elif output[i]==br:
+                output[i] = 5
+            elif output[i]==bq:
+                output[i] = 9
+            elif output[i]==bk:
+                output[i] = 100
+            elif output[i]==wp:
+                output[i] = -1
+            elif output[i]==wn:
+                output[i] = -3
+            elif output[i]==wb:
+                output[i] = -4
+            elif output[i]==wr:
+                output[i] = -5
+            elif output[i]==wq:
+                output[i] = -9
+            elif output[i]==wk:
+                output[i] = -100
+            
+        #print(output)
+        return output
+        
     
     def setup_vanilla(self):
         self.board[0,(0,7)] = br
@@ -635,6 +715,7 @@ class State(object):
             self.whitePieces.append(p.Piece(wp, i, 6, 1, white))
             
         self.blackPieces.append(p.Piece(br, 0, 0, 5, black))
+        self.blackPieces.append(p.Piece(bn, 1, 0, 3, black))
         self.blackPieces.append(p.Piece(bb, 2, 0, 3, black))
         self.blackPieces.append(p.Piece(bq, 3, 0, 9, black))
         self.blackPieces.append(p.Piece(bk, 4, 0, 100, black))

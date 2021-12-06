@@ -23,7 +23,7 @@ def parse_from_pgn():
 
         if line[0]!="[" and line!="\n":
             #wierd and bad pgn found, skip to next [
-            if "{" in line or "$" in line:
+            if "{" in line or "$" or "Z0" in line or "(" in line or ")" in line:
                 next_line = data_base.readline()
                 while next_line[0]!="[":
                     next_line = data_base.readline()
@@ -39,8 +39,8 @@ def parse_from_pgn():
                 game_result = pgn[-4:-1]
                 if len(pgn)<10:
                    if prints: print("pgn too short")
-                elif "$" in pgn or "{" in pgn:
-                   if prints: print("pgn contains $ or {")
+                elif "$" in pgn or "{" in pgn or "Z0" in pgn or "(" in line or ")" in line:
+                   if prints: print("pgn contains illegal characters" )
                 elif game_result !="1-0" and game_result!="0-1" and game_result !="1/2":
                    if prints: print("improper result format")
                 elif pgn in pgn_list:
@@ -53,7 +53,7 @@ def parse_from_pgn():
     fobj.close()
     
     
-#parse_from_pgn()
+parse_from_pgn()
 
 def debug_requests_on():
     '''Switches on logging of the requests module.'''

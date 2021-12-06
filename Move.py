@@ -42,6 +42,11 @@ class Move(object):
     def short(self):
         return self.piece.translate_to_pgn()+self.cap + convert(self.ex) + str(8-self.ey) +self.extra
     
+    def medium1(self):
+        return self.piece.translate_to_pgn()+convert(self.sx) +self.cap + convert(self.ex) + str(8-self.ey) +self.extra
+    
+    def medium2(self):
+        return self.piece.translate_to_pgn()+str(8-self.sy) + self.cap + convert(self.ex) + str(8-self.ey) +self.extra
     
 def convert(num):
     if num==0:
