@@ -83,6 +83,18 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     sns.despine()
     plt.show()
 
-plot_roc(forest(1000), xv, yv, num_classes=3, figsize=(16, 10))
+
+def plot_acc():
+    sizes = [1,20,50,100,200,400,700,1000]    
+    accs=[0.38, 0.434, 0.442, 0.449,0.449,0.4495,0.4485,0.451]
+   # for size in sizes:
+    #    accs.append(forest(size).score(xv,yv))
+     #   print(size," complete")
+    plt.xlabel("Size of Forest")
+    plt.ylabel("Accuracy")
+    plt.plot(sizes,accs)
+    
+    
+plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 10))
 
 #single_tree()

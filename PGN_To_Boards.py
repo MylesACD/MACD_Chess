@@ -79,7 +79,7 @@ def build_game(game_line):
     for move_text in moves:
         
         state = gen_board(move_text, state)
-        if state and state.turnNum>4:
+        if state and state.turnNum>6:
             #data_object = np.reshape(state.board,-1)
             data_object = state.convert_to_num()
             
