@@ -618,7 +618,7 @@ class State(object):
                 x = piece.x
                 y = piece.y
                 # TODO checking and previously moving is an issues
-                # add 4 flags to state to keep track of blc, wlc, bsc, and wsc
+                # add 4 flags to state to keep track of wheather  black long castle, wlc, bsc, and wsc
                 if x == 4:
                     #long castle
                     if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and (self.board[y,x-4]==wr or self.board[y,x-4]==br):

@@ -95,7 +95,7 @@ def build_sets():
     full = open("PGN Only.txt","r")
     training = open("training set.txt","w",encoding="utf-8") 
     validation = open("validation set.txt","w",encoding="utf-8") 
-    num_samples = 50
+    num_samples = 4000
     
     for i in range(num_samples):
         game = full.readline()
@@ -123,6 +123,13 @@ def build_sets():
                 string =string.replace(" ", "")
                 string = string.replace("\\n","")
                 validation.write(string+"\n")
-        
+
+def result_to_num(result):
+    if result=="1-0":
+        return 1
+    elif result=="1/2-1/2":
+        return 0
+    elif result=="0-1":
+        return -1
 
 build_sets()
