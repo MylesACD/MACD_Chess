@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 import pandas as pd
 import seaborn as sns
-
+import PGN_To_Boards as ptb
 
 t_set = open("training set.txt","r",encoding="utf-8")
 training = np.asarray([line.rstrip().split(",") for line in t_set])
@@ -51,6 +51,7 @@ def forest(num_trees):
    # accurracy = clf.score(xv,yv)
    # print("--------------------\n",num_trees," forest\n")
    # print(stats)
+    print(num_trees," complete")
     return clf
     
     
@@ -86,15 +87,20 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
 
 def plot_acc():
     sizes = [1,20,50,100,200,400,700,1000]    
-    accs=[0.38, 0.434, 0.442, 0.449,0.449,0.4495,0.4485,0.451]
-   # for size in sizes:
-    #    accs.append(forest(size).score(xv,yv))
-     #   print(size," complete")
+    #accs=[0.38, 0.434, 0.442, 0.449,0.449,0.4495,0.4485,0.451]
+    accs=[]
+    for size in sizes:
+        accs.append(forest(size).score(xv,yv))
     plt.xlabel("Size of Forest")
     plt.ylabel("Accuracy")
     plt.plot(sizes,accs)
     
-    
-plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 10))
+clf = forest(200)
+line ="1. e4 c5 2. c3 Nc6 3. Qg4 Ne5 4. a3"
+test = [string.rstrip().split(",") for string in ptb.build_game(line)]
+print(clf.predict_proba(test))
+#plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 9))
+#pred = forest(100).predict(xv)
+#print(metrics.confusion_matrix(yv,pred))
 
-#single_tree()
+#print(metrics.classification_report(yv,pred,digits=3))

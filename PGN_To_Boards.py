@@ -86,7 +86,15 @@ def build_game(game_line):
             data_object = [x for x in data_object]
             data_object.insert(0, state.turnNum%2)
             data_object.append(result)
-            boards.append(data_object)
+            string = ",".join(map(str,data_object))
+            
+            #cleaning for the text file
+            string = string.replace("'", "")
+            string =string.replace("[", "")
+            string =string.replace("]", "")
+            string =string.replace(" ", "")
+            string = string.replace("\\n","")
+            boards.append(string)
 
 
     return boards
@@ -102,27 +110,13 @@ def build_sets():
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                #cleaning for the text file
-                string = str(board)
-                string = string.replace("'", "")
-                string =string.replace("[", "")
-                string =string.replace("]", "")
-                string =string.replace(" ", "")
-                string = string.replace("\\n","")
-                training.write(string+"\n")
+                training.write(board+"\n")
     for i in range(int(0.1*num_samples)):
         game = full.readline()
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                #cleaning for the text file
-                string = str(board)
-                string = string.replace("'", "")
-                string =string.replace("[", "")
-                string =string.replace("]", "")
-                string =string.replace(" ", "")
-                string = string.replace("\\n","")
-                validation.write(string+"\n")
+                validation.write(board+"\n")
 
 def result_to_num(result):
     if result=="1-0":
