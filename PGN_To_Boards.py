@@ -79,7 +79,7 @@ def build_game(game_line):
     for move_text in moves:
         
         state = gen_board(move_text, state)
-        if state and state.turnNum>6:
+        if state:
             #data_object = np.reshape(state.board,-1)
             data_object = state.convert_to_num()
             
@@ -110,13 +110,13 @@ def build_sets():
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                training.write(board+"\n")
+                training.write(board)
     for i in range(int(0.1*num_samples)):
         game = full.readline()
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                validation.write(board+"\n")
+                validation.write(board)
 
 def result_to_num(result):
     if result=="1-0":
@@ -126,4 +126,4 @@ def result_to_num(result):
     elif result=="0-1":
         return -1
 
-build_sets()
+#build_sets()

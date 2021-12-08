@@ -96,9 +96,13 @@ def plot_acc():
     plt.plot(sizes,accs)
     
 clf = forest(200)
-line ="1. e4 c5 2. c3 Nc6 3. Qg4 Ne5 4. a3"
+line ="1. e4 c5 2. c3 Nc6 3. Qg4 Ne5 4. a3 1-0"
+print(ptb.build_game(line))
 test = [string.rstrip().split(",") for string in ptb.build_game(line)]
+test = test[:-1]
 print(clf.predict_proba(test))
+
+
 #plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 9))
 #pred = forest(100).predict(xv)
 #print(metrics.confusion_matrix(yv,pred))
