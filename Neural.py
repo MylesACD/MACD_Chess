@@ -1,58 +1,33 @@
 
-
 from sklearn import tree
 from sklearn import metrics
-from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import roc_curve, auc
+from sklearn.preprocessing import StandardScaler
+
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, auc
+
 import pandas as pd
 import seaborn as sns
 import PGN_To_Boards as ptb
 import State as s
 
+scaler = StandardScaler()
+
 t_set = open("training set.txt","r",encoding="utf-8")
-training = np.array([line.replace("\n","").split(",") for line in t_set])
+training = np.array([line.replace("\n","").split(",") for line in t_set],dtype=int)
 xt = training[:,:-1]
 yt = training[:,-1]
-
-
+scaler.fit(xt)
+xt = scaler.transform(xt)
 v_set = open("validation set.txt","r",encoding="utf-8")
-validation = np.array([line.replace("\n","").split(",") for line in v_set])
+validation = np.array([line.replace("\n","").split(",") for line in v_set],dtype=int)
 xv = validation[:,:-1]
 yv= validation[:,-1]
+xv = scaler.transform(xt)
 
-def single_tree():
-   
-    
-    clf = tree.DecisionTreeClassifier()
-    
-    clf.fit(xt,yt)
-    
-   
-    
-    prediction = clf.predict(xv)
-    stats = metrics.classification_report(yv,prediction,digits=3)
-    #depth = clf.get_depth()
-    
-    
-    #print("--------------------\n","single tree\n")
-    # print(stats)
-       # print(depth)
-       # print(prediction==yv)
-    accuracy = clf.score(xv,yv)
-    print(stats)
-    return clf
-    
-def forest(num_trees):
-    clf = RFC(n_estimators = num_trees)
-    clf.fit(xt,yt)
-    
-    print(num_trees," complete")
-    return clf
-    
-    
 def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     y_score = clf.predict_proba(x_test)
 
@@ -82,19 +57,14 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     sns.despine()
     plt.show()
 
-
-def plot_acc():
-    sizes = [1,20,50,100,200,400,700,1000]    
-    #accs=[0.38, 0.434, 0.442, 0.449,0.449,0.4495,0.4485,0.451]
-    accs=[]
-    for size in sizes:
-        accs.append(forest(size).score(xv,yv))
-    plt.xlabel("Size of Forest")
-    plt.plot(sizes,accs)
-
+def think():
+    clf = MLPClassifier(random_state=1,max_iter=300).fit(xt,yt)
+    print("net completed")
     
+    return clf
+
 if __name__ == "__main__":   
-    clf = forest(200)
+    clf = think()
     """
     test1 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7"
     test2 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7 4. Bxd7+"
@@ -113,11 +83,5 @@ if __name__ == "__main__":
     print(metrics.classification_report(yt,pred1,digits=3))
     print(metrics.classification_report(yv,pred2,digits=3))
     
-   
+    plot_roc(clf, xv, yv, num_classes=3)
     
-    
-    #plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 9))
-    #pred = forest(100).predict(xv)
-    #print(metrics.confusion_matrix(yv,pred))
-    
-    #print(metrics.classification_report(yv,pred,digits=3))
