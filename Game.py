@@ -4,6 +4,7 @@ import State as s
 import time
 import numpy as np
 import random
+import PGN_To_Boards as ptb
 
 
 wk = "\u2654"
@@ -43,9 +44,14 @@ def play_random_move(state):
 
 
 
-for i in range(30):
-    game_state = play_random_move(game_state)
-    print(game_state)
+#for i in range(30):
+#    game_state = play_random_move(game_state)
+    
+
+#print(game_state.convert_to_num())
+
+
+
 
 #--------------------------------------------------------------
     

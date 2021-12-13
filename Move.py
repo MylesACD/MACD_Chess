@@ -36,6 +36,7 @@ class Move(object):
                 return convert(self.ex) +   str(8-self.ey) + self.extra
             else: 
                 return convert(self.ex) + self.cap +  str(8-self.ey) + self.extra
+        #not a pawn
         else:     
             return self.piece.translate_to_pgn() + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra
         

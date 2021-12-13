@@ -159,7 +159,7 @@ class State(object):
                 if piece.x<7 and self.board[piece.y-1,piece.x+1]!=em and get_color(self.board[piece.y-1,piece.x+1]) != piece.color:
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y-1,""))
                 #en passant
-                if self.previousMove and piece.y == 4 and self.previousMove.piece.type == bp and self.previousMove.ey - self.previousMove.sy == 2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
+                if self.previousMove and piece.y == 3 and self.previousMove.piece.type == bp and self.previousMove.ey - self.previousMove.sy == 2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey - 1,""))
 
             #Black Pawn Case
@@ -179,7 +179,7 @@ class State(object):
                 if piece.x<7 and self.board[piece.y+1,piece.x+1]!=em and get_color(self.board[piece.y+1,piece.x+1]) != piece.color:
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y+1,""))
                 #en passant
-                if self.previousMove and piece.y == 5 and self.previousMove.piece.type == wp and self.previousMove.ey - self.previousMove.sy == -2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
+                if self.previousMove and piece.y == 4 and self.previousMove.piece.type == wp and self.previousMove.ey - self.previousMove.sy == -2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey + 1,""))
 
                 
@@ -651,8 +651,8 @@ class State(object):
         return str(self.turnNum)+"\n"+ str(self.board)
     
     def convert_to_num(self):
-        temp = copy.deepcopy(self.board)
-        output = np.reshape(temp, -1)
+        temp = self.board.flatten()
+        output=np.zeros(65,dtype=int)
         # white is negative
         # black is positive
         
@@ -662,35 +662,36 @@ class State(object):
         # rook 5
         # queen 9
         # king 100
-        for i in range(len(output)):
+        for i in range(len(temp)):
             
-            if output[i]==em:
-                output[i]=0
-            elif output[i]==bp:
-                output[i] = 1
-            elif output[i]==bn:
-                output[i] = 3
-            elif output[i]==bb:
-                output[i] = 4
-            elif output[i]==br:
-                output[i] = 5
-            elif output[i]==bq:
-                output[i] = 9
-            elif output[i]==bk:
-                output[i] = 100
-            elif output[i]==wp:
-                output[i] = -1
-            elif output[i]==wn:
-                output[i] = -3
-            elif output[i]==wb:
-                output[i] = -4
-            elif output[i]==wr:
-                output[i] = -5
-            elif output[i]==wq:
-                output[i] = -9
-            elif output[i]==wk:
-                output[i] = -100
-            
+            if temp[i]==em:
+                output[i+1] = 0
+            elif temp[i]== wp:
+                output[i+1] = -1
+            elif temp[i]== wn:
+                output[i+1] = -3
+            elif temp[i]== wb:
+                output[i+1] = -4
+            elif temp[i]== wr:
+                output[i+1] = -5
+            elif temp[i]== wq:
+                output[i+1] = -9
+            elif temp[i]== wk:
+                output[i+1] = -100
+            elif temp[i]== bp:
+                output[i+1] = 1
+            elif temp[i]== bn:
+                output[i+1] = 3
+            elif temp[i]== bb:
+                output[i+1] = 4
+            elif temp[i]== br:
+                output[i+1] = 5
+            elif temp[i]== bq:
+                output[i+1] = 9
+            elif temp[i]== bk:
+                output[i+1] = 100
+                
+        output[0] =  self.turnNum%2
         #print(output)
         return output
         

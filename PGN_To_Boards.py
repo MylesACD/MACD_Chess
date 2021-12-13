@@ -2,6 +2,7 @@ import State as s
 import Move as m
 import Piece as p
 import numpy as np
+import time
 
 wk = "\u2654"
 wq = "\u2655"
@@ -43,6 +44,7 @@ def convert(s):
 """
 
 def gen_board(move_text,state):
+  
     if not state:
         return None
     
@@ -60,12 +62,13 @@ def gen_board(move_text,state):
         # other than checks if the move strings are the same
         if clean1 == move_text or clean2==move_text or clean3==move_text or clean4==move_text:
             return state.generateSuccessor(move)
-    
+       
+        
     #print("failed for: " , move_text)
-    #for move in  possible_moves:
-     #   print(move)
+    return None
 
 
+# build the entire series board states of a game
 def build_game(game_line):
     split = game_line.split(" ")
     state = s.State()
@@ -73,57 +76,83 @@ def build_game(game_line):
     result = split[-1]
     moves = [string for string in split if "." not in string]
     moves = moves[:-1]
-    # for testing only
+
     boards=[]
     
     for move_text in moves:
         
         state = gen_board(move_text, state)
         if state:
-            #data_object = np.reshape(state.board,-1)
-            data_object = state.convert_to_num()
-            
-            data_object = [x for x in data_object]
-            data_object.insert(0, state.turnNum%2)
-            data_object.append(result)
-            string = ",".join(map(str,data_object))
-            
-            #cleaning for the text file
-            string = string.replace("'", "")
-            string =string.replace("[", "")
-            string =string.replace("]", "")
-            string =string.replace(" ", "")
-            string = string.replace("\\n","")
-            boards.append(string)
-
-
+            if state.turnNum>4:
+                data_object = state.convert_to_num()
+                data_object = np.append(data_object,[result_to_num(result)])
+                boards.append(data_object)
+        else:
+            # the state was unable to be reached so stop trying to process this game_line
+            #print("failed for: ",game_line)
+            break
+    #print(boards[0])
     return boards
 
-def build_sets():
+def build_sets(num_samples,ratio):
     full = open("PGN Only.txt","r")
     training = open("training set.txt","w",encoding="utf-8") 
     validation = open("validation set.txt","w",encoding="utf-8") 
-    num_samples = 4000
+    
+
     
     for i in range(num_samples):
         game = full.readline()
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                training.write(board)
-    for i in range(int(0.1*num_samples)):
+                out_text = string_rep(board)
+                training.write(out_text)
+    for i in range(int(ratio*num_samples)):
         game = full.readline()
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
             for board in build_game(game):
-                validation.write(board)
-
+                out_text = string_rep(board)
+                validation.write(out_text) 
+   
 def result_to_num(result):
+    result = result.replace("\n", "").replace("'","")
     if result=="1-0":
-        return 1
+        return -40
     elif result=="1/2-1/2":
-        return 0
+        return 20
     elif result=="0-1":
-        return -1
-
-#build_sets()
+        return 40
+    else:
+        print("bad result: ",repr(result))
+   
+def string_rep(arr):
+    out=""
+    for n in arr[:-1]:
+        out+=str(n)+","
+    out+=str(arr[-1])+"\n"
+    return out
+# get the state of the last move from an incomplete game's sequence
+def single_state(game_line):
+    split = game_line.split(" ")
+    state = s.State()
+    state.setup_vanilla()
+    
+    moves = [string for string in split if "." not in string]
+   
+   
+    for move_text in moves:
+        
+        state = gen_board(move_text, state)
+        if not state:
+            # the state was unable to be reached so stop trying to process this game_line
+            print("failed to translate: ", move_text)
+            return None
+    #return a list so that its ready to go for prediction models
+    return [state.convert_to_num()]
+    
+if __name__=="__main__" and False:
+    start = time.perf_counter()
+    build_sets(4000,0.1)
+    print("sets generated in ",time.perf_counter()-start)
