@@ -10,7 +10,7 @@ from sklearn.metrics import roc_curve, auc
 import pandas as pd
 import seaborn as sns
 import PGN_To_Boards as ptb
-import State as s
+
 
 t_set = open("training set.txt","r",encoding="utf-8")
 training = np.array([line.replace("\n","").split(",") for line in t_set])
@@ -27,21 +27,11 @@ def single_tree():
    
     
     clf = tree.DecisionTreeClassifier()
-    
     clf.fit(xt,yt)
     
    
-    
     prediction = clf.predict(xv)
     stats = metrics.classification_report(yv,prediction,digits=3)
-    #depth = clf.get_depth()
-    
-    
-    #print("--------------------\n","single tree\n")
-    # print(stats)
-       # print(depth)
-       # print(prediction==yv)
-    accuracy = clf.score(xv,yv)
     print(stats)
     return clf
     
@@ -82,10 +72,9 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     sns.despine()
     plt.show()
 
-
+#plot the accuracy of several forest sizes
 def plot_acc():
     sizes = [1,20,50,100,200,400,700,1000]    
-    #accs=[0.38, 0.434, 0.442, 0.449,0.449,0.4495,0.4485,0.451]
     accs=[]
     for size in sizes:
         accs.append(forest(size).score(xv,yv))
@@ -94,30 +83,17 @@ def plot_acc():
 
     
 if __name__ == "__main__":   
+    #rebuild the sets
+    ptb.build_sets(3000, 0.1)
+    
     clf = forest(200)
-    """
-    test1 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7"
-    test2 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7 4. Bxd7+"
-    test3 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7 4. Bxd7+ Kf7 5. Bxc8 Kg6 6. Qb3 Kg5 7. Qxb7 Kf6 8. Qxa8"
-    state1 = ptb.single_state(test1)
-    state2 = ptb.single_state(test2)
-    state3 = ptb.single_state(test3)
-    print(clf.predict_proba(state1))
-    print(clf.predict_proba(state2))
-    print(clf.predict_proba(state3))
-    """
     
+    #predictions using the 200 forest
+    training_pred = clf.predict(xt)
+    validation_pred = clf.predict(xv)
     
-    pred1 = clf.predict(xt)
-    pred2 = clf.predict(xv)
-    print(metrics.classification_report(yt,pred1,digits=3))
-    print(metrics.classification_report(yv,pred2,digits=3))
+    print(metrics.classification_report(yt,training_pred,digits=3))
+    print(metrics.classification_report(yv,validation_pred,digits=3))
     
-   
-    
-    
-    #plot_roc(forest(200), xv, yv, num_classes=3, figsize=(16, 9))
-    #pred = forest(100).predict(xv)
-    #print(metrics.confusion_matrix(yv,pred))
-    
-    #print(metrics.classification_report(yv,pred,digits=3))
+    plot_roc(clf, xv, yv, num_classes=3, figsize=(16, 9))
+    plot_acc()

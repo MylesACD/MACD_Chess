@@ -133,6 +133,7 @@ def string_rep(arr):
         out+=str(n)+","
     out+=str(arr[-1])+"\n"
     return out
+
 # get the state of the last move from an incomplete game's sequence
 def single_state(game_line):
     split = game_line.split(" ")
@@ -152,7 +153,7 @@ def single_state(game_line):
     #return a list so that its ready to go for prediction models
     return [state.convert_to_num()]
     
-if __name__=="__main__" and False:
+if __name__=="__main__":
     start = time.perf_counter()
-    build_sets(4000,0.1)
+    build_sets(3000,0.1)
     print("sets generated in ",time.perf_counter()-start)
