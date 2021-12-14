@@ -8,20 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 import pandas as pd
-import seaborn as sns
 import PGN_To_Boards as ptb
 
 
-t_set = open("training set.txt","r",encoding="utf-8")
-training = np.array([line.replace("\n","").split(",") for line in t_set])
-xt = training[:,:-1]
-yt = training[:,-1]
-
-
-v_set = open("validation set.txt","r",encoding="utf-8")
-validation = np.array([line.replace("\n","").split(",") for line in v_set])
-xv = validation[:,:-1]
-yv= validation[:,-1]
 
 def single_tree():
    
@@ -50,7 +39,7 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
-
+    classes=["White Win","Tie","Black Win"]
     # calculate dummies once
     y_test_dummies = pd.get_dummies(y_test, drop_first=False).values
     for i in range(num_classes):
@@ -64,27 +53,40 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     ax.set_ylim([0.0, 1.05])
     ax.set_xlabel('False Positive Rate')
     ax.set_ylabel('True Positive Rate')
-    ax.set_title('Receiver operating characteristic example')
+    ax.set_title('Receiver operating characteristic of 200 Tree Forest')
     for i in range(num_classes):
-        ax.plot(fpr[i], tpr[i], label='ROC curve (area = %0.2f) for label %i' % (roc_auc[i], i))
+        ax.plot(fpr[i], tpr[i], label="ROC curve (area = "+ str(round(roc_auc[i],3)) + ") for class: " + classes[i])
     ax.legend(loc="best")
     ax.grid(alpha=.4)
-    sns.despine()
     plt.show()
 
 #plot the accuracy of several forest sizes
 def plot_acc():
-    sizes = [1,20,50,100,200,400,700,1000]    
+    plt.figure()
+    sizes = [1,20,50,100,200,400,700]    
     accs=[]
     for size in sizes:
         accs.append(forest(size).score(xv,yv))
     plt.xlabel("Size of Forest")
+    plt.ylabel("Accuracy")
     plt.plot(sizes,accs)
 
     
 if __name__ == "__main__":   
-    #rebuild the sets
-    ptb.build_sets(3000, 0.1)
+    #rebuild the sets with 
+    ptb.build_sets(3000, 0.2)
+    
+    t_set = open("training set.txt","r",encoding="utf-8")
+    training = np.array([line.replace("\n","").split(",") for line in t_set])
+    xt = training[:,:-1]
+    yt = training[:,-1]
+
+
+    v_set = open("validation set.txt","r",encoding="utf-8")
+    validation = np.array([line.replace("\n","").split(",") for line in v_set])
+    xv = validation[:,:-1]
+    yv= validation[:,-1]
+
     
     clf = forest(200)
     

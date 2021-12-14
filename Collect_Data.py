@@ -14,18 +14,18 @@ import sys
 def parse_from_pgn():
     prints = False
 
-    data_base = open(os.getcwd() + "\\DATABASE - Back Up.pgn","r",encoding="utf8",errors="ignore")
+    data_base = open(os.getcwd() + "\\DATABASE4U.pgn","r",encoding="utf8",errors="ignore")
     fobj = open("PGN Only.txt","w",encoding="utf8",errors="ignore")
     pgn_list=[]
     # have to cap the final file size
-    while len(pgn_list)<200000:
+    while len(pgn_list)<10000:
         line = data_base.readline()
 
-        if line[0]!="[" and line!="\n":
+        if len(line)>0 and line[0]!="[" and line!="\n":
             #wierd and bad pgn found, skip to next [
             if "{" in line or "$" or "Z0" in line or "(" in line or ")" in line:
                 next_line = data_base.readline()
-                while next_line[0]!="[":
+                while len(next_line)>0 and next_line[0]!="[":
                     next_line = data_base.readline()
             else:
                 pgn = line
@@ -48,12 +48,11 @@ def parse_from_pgn():
                 else:
                     pgn_list.append(pgn)
                     fobj.write(pgn)
-    
     data_base.close()
     fobj.close()
     
     
-parse_from_pgn()
+
 
 def debug_requests_on():
     '''Switches on logging of the requests module.'''
@@ -110,4 +109,3 @@ def download_tempo(num_grabs):
                 fobj.write("\n")
                 break
     fobj.close()
-
