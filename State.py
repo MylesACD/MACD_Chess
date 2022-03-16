@@ -650,7 +650,7 @@ class State(object):
     def __str__(self):
         return str(self.turnNum)+"\n"+ str(self.board)
     
-    def convert_to_num(self):
+    def convert_board_to_num(self,mat=False):
         temp = self.board.flatten()
         output=np.zeros(65,dtype=int)
         # white is negative
@@ -692,6 +692,9 @@ class State(object):
                 output[i+1] = 100
                 
         output[0] =  self.turnNum%2
+        
+        if mat:
+            output = np.append(output, self.bmat-self.wmat)
         #print(output)
         return output
         

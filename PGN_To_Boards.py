@@ -63,7 +63,7 @@ def build_game(game_line):
         state = gen_board(move_text, state)
         if state:
             if state.turnNum>4:
-                data_object = state.convert_to_num()
+                data_object = state.convert_board_to_num(mat=True)
                 data_object = np.append(data_object,[result_to_num(result)])
                 boards.append(data_object)
         else:

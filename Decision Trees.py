@@ -74,7 +74,7 @@ def plot_acc():
     
 if __name__ == "__main__":   
     #rebuild the sets with 
-    ptb.build_sets(3000, 0.2)
+    #ptb.build_sets(3000, 0.2)
     
     t_set = open("training set.txt","r",encoding="utf-8")
     training = np.array([line.replace("\n","").split(",") for line in t_set])
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     print(metrics.classification_report(yv,validation_pred,digits=3))
     
     plot_roc(clf, xv, yv, num_classes=3, figsize=(16, 9))
-    plot_acc()
+    #plot_acc()
