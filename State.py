@@ -35,8 +35,8 @@ class State(object):
         self.board[:]=em
         self.turnNum =1
         # queen =9, 2xrook =10, 2xbishop =6, 2xknight =6, 8xpawn =8
-        self.wmat =39
-        self.bmat =39
+        self.wmat =0
+        self.bmat =0
         self.previousMove=None
         
     def generateSuccessor(self,move):
@@ -62,10 +62,11 @@ class State(object):
                     break
         
         # update the piece(s) that moved
-        
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece.type
         
+    
+        # castling case
         if "O" in move.extra:
             
             y=0
@@ -99,22 +100,42 @@ class State(object):
             # change the display on the board
             # find the piece in the piece lists and update its type
             piece = [piece for piece in curr_pieces if piece.x==move.sx and piece.y==move.sy][0]
-            
+     
             if new.turnNum%2==1:
                 if "Q" in move.extra:
                     piece.type = wq
                     piece.value = 9
-                else:
+                    new.wmat+=8
+                elif "B" in move.extra:
+                    piece.type=wb
+                    piece.value = 3
+                    new.wmat+=2
+                elif "N" in move.extra:
                     piece.type=wn
                     piece.value = 3
+                    new.wmat+=2
+                elif "R" in move.extra:
+                    piece.type=wr
+                    piece.value = 5
+                    new.wmat+=4
                     
             else:
                 if "Q" in move.extra:
                     piece.type = bq
                     piece.value = 9
-                else:
+                    new.bmat+=8
+                elif "B" in move.extra:
+                    piece.type=bb
+                    piece.value = 3
+                    new.bmat+=2
+                elif "N" in move.extra:
                     piece.type=bn
                     piece.value = 3
+                    new.bmat+=2
+                elif "R" in move.extra:
+                    piece.type=br
+                    piece.value = 5
+                    new.bmat+=4
                 
             new.board[move.ey,move.ex] ==piece.type
         # update the piece referred to by move
@@ -123,6 +144,7 @@ class State(object):
             if piece.x==move.sx and piece.y==move.sy:
                 piece.x = move.ex
                 piece.y=move.ey
+                piece.has_not_moved = False
                 break
           
         
@@ -618,34 +640,48 @@ class State(object):
                 x = piece.x
                 y = piece.y
                 # TODO checking and previously moving is an issues
-                # add 4 flags to state to keep track of wheather  black long castle, wlc, bsc, and wsc
-                if x == 4:
-                    #long castle
-                    if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and (self.board[y,x-4]==wr or self.board[y,x-4]==br):
+                if piece.has_not_moved and self.previousMove is not None and"+" not in self.previousMove.extra:
+                #long castle, checks empty spaces, and that the piece in the corner has not moved
+                    if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and self.get_piece_at_position(x-4, y).has_not_moved:
                         all_moves.append(m.Move(piece,x,y,"",x-2,y,"O-O-O"))
-                        
-                    #short castle    
-                    if self.board[y,x+1]==em and self.board[y,x+2]==em and (self.board[y,x+3]==wr or self.board[y,x+3]==br):
+                            
+                #short castle, checks empty spaces, and that the piece in the corner has not moved
+                    if self.board[y,x+1]==em and self.board[y,x+2]==em and self.get_piece_at_position(x+3,y).has_not_moved:
                         all_moves.append(m.Move(piece,x,y,"",x+2,y,"O-O"))
+                   
+                    
             
             
             
         if len(all_moves) ==0:
             print("no moves")
-        #add promotions
+        #add promotions tags
         for move in all_moves:
             # if the piece is a pawn and at one of the far sides
             if (move.piece.type==wp or move.piece.type==bp) and (move.ey==0 or move.ey==7) and "=" not in move.extra:
                 knight = copy.copy(move)
+                bishop = copy.copy(move)
+                rook = copy.copy(move)
                 knight.extra="=N"
                 move.extra="=Q"
+                bishop.extra="=B"
+                rook.extra="=R"
                 all_moves.append(knight)
+                all_moves.append(bishop)
+                all_moves.append(rook)
                 
 
         return all_moves
                 
-        
-
+    # returns the piece object at a certain x,y
+    def get_piece_at_position(self, x, y):
+        for p in self.blackPieces:
+            if p.x==x and p.y==y:
+                return p
+        for p in self.whitePieces:
+            if p.x==x and p.y==y:
+                return p
+        return p.piece(em,-1,-1,-1,-1)
    
     def __str__(self):
         return str(self.turnNum)+"\n"+ str(self.board)
@@ -700,6 +736,9 @@ class State(object):
         
     
     def setup_vanilla(self):
+        self.__init__()
+        self.wmat =39
+        self.bmat =39
         self.board[0,(0,7)] = br
         self.board[0,(1,6)] = bn
         self.board[0,(2,5)] = bb

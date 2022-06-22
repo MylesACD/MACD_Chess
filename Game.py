@@ -37,21 +37,34 @@ def play_random_move(state):
     x= random.randint(0, len(valid_moves)-1)
     print(valid_moves[x])
     state = state.generateSuccessor(valid_moves[x])
-    return state
+    return state, valid_moves[x]
     
+
+def play_random_move_testing(state):
+    valid_moves = state.generate_all_moves()
+    x= random.randint(0, len(valid_moves)-1)
+    print(valid_moves[x])
+    for m in valid_moves:
+        print(m)
+    print("\n")
+    print(state)
+    time.sleep(1.2)
+    state = state.generateSuccessor(valid_moves[x])
+    return state, valid_moves[x]
 
 #--------------------Testing stuff-----------------------
 
 
-
-#for i in range(30):
-#    game_state = play_random_move(game_state)
+game_state, move = play_random_move_testing(game_state)
+while "O" not in str(move):
+    game_state, move = play_random_move_testing(game_state)
+    #if game_state.turnNum==30:
+       # game_state.setup_vanilla()
+       # print("\n")
+       # print("\n")
     
 
-#print(game_state.convert_to_num())
-
-
-
+#print(game_state.convert_board_to_num())
 
 #--------------------------------------------------------------
     
