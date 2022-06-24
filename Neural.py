@@ -13,6 +13,7 @@ import pandas as pd
 import seaborn as sns
 import PGN_To_Boards as ptb
 import State as s
+import pickle
 
 scaler = StandardScaler()
 
@@ -22,11 +23,14 @@ xt = training[:,:-1]
 yt = training[:,-1]
 scaler.fit(xt)
 xt = scaler.transform(xt)
+
+
 v_set = open("validation set.txt","r",encoding="utf-8")
 validation = np.array([line.replace("\n","").split(",") for line in v_set],dtype=int)
 xv = validation[:,:-1]
 yv= validation[:,-1]
-xv = scaler.transform(xt)
+xv = scaler.transform(xv)
+
 
 def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     y_score = clf.predict_proba(x_test)
@@ -58,13 +62,15 @@ def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     plt.show()
 
 def think():
-    clf = MLPClassifier(random_state=1,max_iter=300).fit(xt,yt)
+    clf = MLPClassifier().fit(xt,yt)
     print("net completed")
+    filename = "MLPC.sav"
+    pickle.dump(clf, open(filename,"wb"))
     
     return clf
 
 if __name__ == "__main__":   
-    clf = think()
+    #clf = think()
     """
     test1 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7"
     test2 = "1. e3 d5 2. c3 f5 3. Bb5+ Qd7 4. Bxd7+"
@@ -76,7 +82,7 @@ if __name__ == "__main__":
     print(clf.predict_proba(state2))
     print(clf.predict_proba(state3))
     """
-    
+    clf = pickle.load(open("MLPC.sav", 'rb'))
     
     pred1 = clf.predict(xt)
     pred2 = clf.predict(xv)

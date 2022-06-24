@@ -62,7 +62,7 @@ def build_game(game_line):
         
         state = gen_board(move_text, state)
         if state:
-            if state.turnNum>4:
+            if state.turnNum>0:
                 data_object = state.convert_board_to_num(mat=True)
                 data_object = np.append(data_object,[result_to_num(result)])
                 boards.append(data_object)
@@ -80,7 +80,7 @@ def build_sets(num_samples,ratio):
     
 
     
-    for i in range(num_samples):
+    for i in range(int(num_samples*(1-ratio))):
         game = full.readline()
         #this data cleaning should go in Collect_Data but I don't have the og database to rebuild with the new filter
         if "Z0" not in game and "(" not in game and ")" not in game:
@@ -134,5 +134,5 @@ def single_state(game_line):
     
 if __name__=="__main__":
     start = time.perf_counter()
-    build_sets(3000,0.1)
+    build_sets(10000,0.1)
     print("sets generated in ",time.perf_counter()-start)

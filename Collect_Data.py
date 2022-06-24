@@ -18,7 +18,7 @@ def parse_from_pgn():
     fobj = open("PGN Only.txt","w",encoding="utf8",errors="ignore")
     pgn_list=[]
     # have to cap the final file size
-    while len(pgn_list)<10000:
+    while len(pgn_list)<1000:
         line = data_base.readline()
 
         if len(line)>0 and line[0]!="[" and line!="\n":
@@ -109,3 +109,7 @@ def download_tempo(num_grabs):
                 fobj.write("\n")
                 break
     fobj.close()
+"""    
+if __name__ == "__main__":   
+    parse_from_pgn()
+"""
