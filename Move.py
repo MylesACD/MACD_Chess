@@ -33,9 +33,10 @@ class Move(object):
         # pawn case
         if s=="":
             if self.cap=="x":
-                return convert(self.ex) +   str(8-self.ey) + self.extra
+                return convert(self.sx) + self.cap +convert(self.ex)  +str(8-self.ey) + self.extra
+                
             else: 
-                return convert(self.ex) + self.cap +  str(8-self.ey) + self.extra
+                return convert(self.ex) +   str(8-self.ey) + self.extra
         #not a pawn
         else:     
             return self.piece.translate_to_pgn() + convert(self.sx) +str(8-self.sy)+self.cap + convert(self.ex) + str(8-self.ey) +self.extra

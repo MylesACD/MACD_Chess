@@ -3,14 +3,19 @@
 from sklearn import tree
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.metrics import roc_curve, auc
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, auc
+
 import pandas as pd
 import PGN_To_Boards as ptb
+import pickle
 
-
+xt=[]
+yt=[]
+xv=[]
+yv=[]
 
 def single_tree():
    
@@ -31,6 +36,7 @@ def forest(num_trees):
     print(num_trees," complete")
     return clf
     
+        
     
 def plot_roc(clf, x_test, y_test, num_classes, figsize=(17, 6)):
     y_score = clf.predict_proba(x_test)
@@ -76,19 +82,32 @@ if __name__ == "__main__":
     #rebuild the sets with 
     #ptb.build_sets(3000, 0.2)
     
+    
+    clf = pickle.load(open("300forest.sav", 'rb'))
+    t_set = open("training set.txt","r",encoding="utf-8")
+    training = np.array([line.replace("\n","").split(",") for line in t_set])
+    xt = training[:,:-1]
+    yt = training[:,-1]
+    training_pred = clf.predict(xt)
+    print(clf.predict_proba(xt))
+    #print(metrics.classification_report(yt,training_pred,digits=3))
+    """
     t_set = open("training set.txt","r",encoding="utf-8")
     training = np.array([line.replace("\n","").split(",") for line in t_set])
     xt = training[:,:-1]
     yt = training[:,-1]
 
 
+    clf = forest(300)
+    filename = "300forest.sav"
+    pickle.dump(clf, open(filename,"wb"))
+    
+    
+    
     v_set = open("validation set.txt","r",encoding="utf-8")
     validation = np.array([line.replace("\n","").split(",") for line in v_set])
     xv = validation[:,:-1]
     yv= validation[:,-1]
-
-    
-    clf = forest(200)
     
     #predictions using the 200 forest
     training_pred = clf.predict(xt)
@@ -99,3 +118,5 @@ if __name__ == "__main__":
     
     plot_roc(clf, xv, yv, num_classes=3, figsize=(16, 9))
     #plot_acc()
+    """
+    

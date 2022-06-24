@@ -78,7 +78,6 @@ class State(object):
                 
             # long castle
             if "O-O-O" in move.extra:
-                
                 rook  = [piece for piece in curr_pieces if piece.x==0 and (piece.y==0 or piece.y==7)][0]
                 
                 new.board[y,3] = rook.type
@@ -152,6 +151,7 @@ class State(object):
         new.previousMove = move
         new.turnNum+=1
         return new
+    
     # generate all possible moves for a player's turn including self checks
     # to be actually playable these moves will have to filtered
     def generate_all_moves(self):
@@ -641,11 +641,11 @@ class State(object):
                 y = piece.y
                 # TODO checking and previously moving is an issues
                 if piece.has_not_moved and self.previousMove is not None and"+" not in self.previousMove.extra:
-                #long castle, checks empty spaces, and that the piece in the corner has not moved
+                    #long castle, checks empty spaces, and that the piece in the corner has not moved
                     if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and self.get_piece_at_position(x-4, y).has_not_moved:
                         all_moves.append(m.Move(piece,x,y,"",x-2,y,"O-O-O"))
                             
-                #short castle, checks empty spaces, and that the piece in the corner has not moved
+                    #short castle, checks empty spaces, and that the piece in the corner has not moved
                     if self.board[y,x+1]==em and self.board[y,x+2]==em and self.get_piece_at_position(x+3,y).has_not_moved:
                         all_moves.append(m.Move(piece,x,y,"",x+2,y,"O-O"))
                    
@@ -672,19 +672,31 @@ class State(object):
                 
 
         return all_moves
+    
+    # one function call to find all valid moves and then the states from those moves
+    # returns a list of new states
+    def generate_all_successor_states(self):
+        if self.is_terminal():
+            return []
+        moves= self.generate_all_moves()
+        states = [self.generateSuccessor(move) for move in moves]
+        return states
                 
     # returns the piece object at a certain x,y
     def get_piece_at_position(self, x, y):
-        for p in self.blackPieces:
-            if p.x==x and p.y==y:
-                return p
-        for p in self.whitePieces:
-            if p.x==x and p.y==y:
-                return p
-        return p.piece(em,-1,-1,-1,-1)
+        for piece in self.blackPieces:
+            if piece.x==x and piece.y==y:
+                return piece
+        for piece in self.whitePieces:
+            if piece.x==x and piece.y==y:
+                return piece
+        rtn = p.Piece(em,-1,-1,-1,-1)
+        #to support castling
+        rtn.has_not_moved = False
+        return rtn
    
     def __str__(self):
-        return str(self.turnNum)+"\n"+ str(self.board)
+        return str(self.board)
     
     def convert_board_to_num(self,mat=False):
         temp = self.board.flatten()
@@ -733,6 +745,28 @@ class State(object):
             output = np.append(output, self.bmat-self.wmat)
         #print(output)
         return output
+    
+    #TODO
+    def is_terminal(self):
+        
+        # check for missing king
+        # this should not ever happen in a real game
+        types = [piece.type for piece in self.blackPieces]
+        if bk not in types:
+            return True
+        types = [piece.type for piece in self.whitePieces]
+        if wk not in types:
+            return True
+        
+        else:
+           return False
+    
+    # evaluates based on calling player
+    def standard_mat_eval(self, color):
+        if color == white:
+            return self.wmat-self.bmat
+        else:
+            return self.bmat - self.wmat
         
     
     def setup_vanilla(self):
