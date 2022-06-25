@@ -6,6 +6,7 @@ import numpy as np
 import random
 import PGN_To_Boards as ptb
 import pickle
+import threading as thd
 
 
 wk = "\u2654"
@@ -31,6 +32,10 @@ def random_move(state):
     x= random.randint(0, len(valid_moves)-1)
     return valid_moves[x]
     
+#
+def mmm_helper(state,color,target_depth,a,b,is_maxing):
+    results.append(mat_minimax(state, color, target_depth, a, b, is_maxing))
+
 # returns the max move for that player 
 def mat_minimax(state, color, target_depth, a, b, is_maxing):
     # this might be a significant performance hit
@@ -77,7 +82,7 @@ class random_agent(agent):
     
 class minimax_agent(agent):
     def __init__(self, depth, color):
-        self.play_func = mat_minimax
+        self.play_func = mmm_helper
         self.depth = depth
         self.color = color
         
@@ -90,7 +95,15 @@ class minimax_agent(agent):
         # saving time by not recalculating all moves
         states = [state.generateSuccessor(move) for move in moves]
         # run minimax on all of the future states
-        results = [self.play_func(future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
+       
+        # expiramental using multiprocessing
+        global results
+        results = []
+        threads = [thd.Thread(target=mmm_helper, args=(future_state, self.color,self.depth-1, -1000,1000,False)) for future_state in states]
+        [thread.start() for thread in threads]
+        [thread.join() for thread in threads]
+   
+        #results = [self.play_func(future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
        
         best = max(results)
         indecies=[]
@@ -104,12 +117,13 @@ class minimax_agent(agent):
     
 class normal_game:
     
-    def __init__(self, wplayer,bplayer):
+    def __init__(self, wplayer,bplayer, turn_limit = np.inf):
         self.game_state = s.State()
         self.game_state.setup_vanilla()
         self.players = [bplayer,wplayer]
         self.turn_num = 0
         self.moves_played = []
+        self.turn_limit = turn_limit
         
     def set_white_player(self, player):
         self.players[1] = player
@@ -131,28 +145,33 @@ class normal_game:
         move = self.players[self.turn_num%2].choose_move(self.game_state)
         self.moves_played.append(str(move))
         self.game_state = self.game_state.generateSuccessor(move)
+        
+    def is_over(self):
+        return self.game_state.is_terminal() or self.turn_num >self.turn_limit
 
     
     
-
+if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-whitePlayer = minimax_agent(5,white)
-blackPlayer = minimax_agent(5,black)
-game = normal_game(whitePlayer,blackPlayer)
-model = pickle.load(open("300forest.sav", 'rb'))
-print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
-times = []
-for i in range(15):
-    t = time.perf_counter()
-    game.next_turn()
-    game.next_turn()
-    print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
-    times.append(time.perf_counter()-t)
-
-game.print_PGN()
-print(np.average(times))
-
-#print(game_state.convert_board_to_num())
+    whitePlayer = minimax_agent(3,white)
+    blackPlayer = minimax_agent(3,black)
+    game = normal_game(whitePlayer,blackPlayer,30)
+    #model = pickle.load(open("300forest.sav", 'rb'))
+    #print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
+    times = []
+    while not game.is_over():
+        t = time.perf_counter()
+        game.next_turn()
+        game.next_turn()
+     #  print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
+        dur = time.perf_counter()-t
+        print(dur)
+        times.append(dur)
+    
+    game.print_PGN()
+    print("AVG: ",np.average(times))
+    
+    #print(game_state.convert_board_to_num())
 
 #--------------------------------------------------------------
     
