@@ -7,6 +7,7 @@ import random
 import PGN_To_Boards as ptb
 import pickle
 import threading as thd
+import concurrent
 
 
 wk = "\u2654"
@@ -95,13 +96,11 @@ class minimax_agent(agent):
         # saving time by not recalculating all moves
         states = [state.generateSuccessor(move) for move in moves]
         # run minimax on all of the future states
-       
+        results=[]
         # expiramental using multiprocessing
-        global results
-        results = []
-        threads = [thd.Thread(target=mmm_helper, args=(future_state, self.color,self.depth-1, -1000,1000,False)) for future_state in states]
-        [thread.start() for thread in threads]
-        [thread.join() for thread in threads]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(mat_minimax, future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
+            results = [f.result() for f in futures]         
    
         #results = [self.play_func(future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
        
@@ -153,8 +152,8 @@ class normal_game:
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-    whitePlayer = minimax_agent(3,white)
-    blackPlayer = minimax_agent(3,black)
+    whitePlayer = minimax_agent(4,white)
+    blackPlayer = minimax_agent(4,black)
     game = normal_game(whitePlayer,blackPlayer,30)
     #model = pickle.load(open("300forest.sav", 'rb'))
     #print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
