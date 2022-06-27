@@ -26,30 +26,26 @@ em = "--"
 black = 0
 white = 1
 
-#whatever game type is being played the real gamestate must be created
+#------------------gobal variables for testing--------------------------------
+leaves = 0 
+
+#-----------------------------------------------------------------------------
 
 def random_move(state):
     valid_moves = state.generate_all_moves()
     x= random.randint(0, len(valid_moves)-1)
     return valid_moves[x]
     
-#
-def mmm_helper(state,color,target_depth,a,b,is_maxing):
-    results.append(mat_minimax(state, color, target_depth, a, b, is_maxing))
-
 # returns the max move for that player 
-def mat_minimax(state, color, target_depth, a, b, is_maxing):
-    # this might be a significant performance hit
-    temp_state = state
-  
-    
+def mat_minimax(state, color, target_depth, a, b, is_maxing):   
     # checks if the state is terminal
-   
-    if target_depth==0 or state.is_terminal():
-        return temp_state.standard_mat_eval(color)
+    if target_depth<1 or state.is_terminal():
+        global leaves
+        leaves+=1
+        return state.standard_mat_eval(color)
     
     elif is_maxing:
-        child_states = temp_state.generate_all_successor_states()
+        child_states = state.generate_all_successor_states()
         value = -1000
         for child in child_states:
             value = max(value, mat_minimax(child, color,target_depth-1, a, b,False))
@@ -58,7 +54,7 @@ def mat_minimax(state, color, target_depth, a, b, is_maxing):
                 break
         return value
     else:
-        child_states = temp_state.generate_all_successor_states()
+        child_states = state.generate_all_successor_states()
         value = 1000
         for child in child_states:
             value = min(value, mat_minimax(child,color, target_depth-1, a, b, True))
@@ -79,13 +75,22 @@ class random_agent(agent):
     def __init__(self):
         self.play_func = random_move
     def prediction():
-        return 0.5        
+        return 0.5     
     
+def human_agent(agent):
+    def __init__():
+       # self.play_func = humnan_turn 
+       pass
+
 class minimax_agent(agent):
     def __init__(self, depth, color):
-        self.play_func = mmm_helper
+        self.play_func = mat_minimax
         self.depth = depth
         self.color = color
+        if color == black:
+            self.other = white
+        elif color == white:
+            self.other = black
         
     def choose_move(self, state):
         # 0 depth means no evaluation of future nodes, so choose one at random
@@ -98,8 +103,8 @@ class minimax_agent(agent):
         # run minimax on all of the future states
         results=[]
         # expiramental using multiprocessing
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [executor.submit(mat_minimax, future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.play_func, future_state, self.other,self.depth-1, -1000,1000,False) for future_state in states]
             results = [f.result() for f in futures]         
    
         #results = [self.play_func(future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
@@ -147,30 +152,32 @@ class normal_game:
         
     def is_over(self):
         return self.game_state.is_terminal() or self.turn_num >self.turn_limit
+    
+    def run(self):
+        while not self.is_over():
+            game.next_turn()
+        return self.game_state.standard_mat_eval(white)
 
     
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
     whitePlayer = minimax_agent(4,white)
-    blackPlayer = minimax_agent(4,black)
-    game = normal_game(whitePlayer,blackPlayer,30)
-    #model = pickle.load(open("300forest.sav", 'rb'))
-    #print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
-    times = []
-    while not game.is_over():
-        t = time.perf_counter()
-        game.next_turn()
-        game.next_turn()
-     #  print(model.predict_proba([game.game_state.convert_board_to_num(True)]))
-        dur = time.perf_counter()-t
-        print(dur)
-        times.append(dur)
+    blackPlayer = minimax_agent(0,black)
+
+    results =[]
+    noG  =1
+    length =1
+    start = time.perf_counter()
+   
+    for i in range(noG):
+        game = normal_game(whitePlayer,blackPlayer,length)
+        game.run()
+        game.print_PGN()
     
-    game.print_PGN()
-    print("AVG: ",np.average(times))
-    
-    #print(game_state.convert_board_to_num())
+    print((time.perf_counter()-start)/noG)
+    print("Number of leaf nodes per turn: ",leaves/noG)
+
 
 #--------------------------------------------------------------
     

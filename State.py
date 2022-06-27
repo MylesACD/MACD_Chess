@@ -639,7 +639,7 @@ class State(object):
                 # castling logic
                 x = piece.x
                 y = piece.y
-                # TODO checking and previously moving is an issues
+                # TODO checking 
                 if piece.has_not_moved and self.previousMove is not None and"+" not in self.previousMove.extra:
                     #long castle, checks empty spaces, and that the piece in the corner has not moved
                     if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and self.get_piece_at_position(x-4, y).has_not_moved:
@@ -649,12 +649,8 @@ class State(object):
                     if self.board[y,x+1]==em and self.board[y,x+2]==em and self.get_piece_at_position(x+3,y).has_not_moved:
                         all_moves.append(m.Move(piece,x,y,"",x+2,y,"O-O"))
                    
-                    
-            
-            
-            
-        if len(all_moves) ==0:
-            print("no moves")
+        
+
         #add promotions tags
         for move in all_moves:
             # if the piece is a pawn and at one of the far sides
@@ -670,6 +666,19 @@ class State(object):
                 all_moves.append(bishop)
                 all_moves.append(rook)
                 
+        
+        all_moves = self.filter_self_checks(all_moves)
+        
+        # add check mate tag to previous move
+        if len(all_moves)==0:
+            self.previousMove().extra.append("#")
+
+        return all_moves
+    
+    #TODO
+    def filter_self_checks(self,all_moves):
+        for move in all_moves:
+            pass
 
         return all_moves
     
@@ -694,6 +703,19 @@ class State(object):
         #to support castling
         rtn.has_not_moved = False
         return rtn
+    
+    def get_king_position(self, color):
+        curr_pieces = []
+        if color==white:
+            curr_pieces = self.whitePieces
+        elif color==black:
+            curr_pieces = self.blackPieces
+        for piece in curr_pieces:
+            if piece.type == bk or piece.type == wk:
+                return [piece.x,piece.y]
+        # just in case, this should never be reached but hey
+        return [-1,-1]
+
    
     def __str__(self):
         return str(self.board)
@@ -762,7 +784,7 @@ class State(object):
            return False
     
     # evaluates based on calling player
-    def standard_mat_eval(self, color):
+    def standard_mat_eval(self, color=white):
         if color == white:
             return self.wmat-self.bmat
         else:
