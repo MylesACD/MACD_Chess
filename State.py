@@ -27,7 +27,7 @@ def get_color(piece_type):
    else:
        return 0
 
-class State(object):
+class State():
     def __init__(self):
         self.blackPieces=[]
         self.whitePieces=[]

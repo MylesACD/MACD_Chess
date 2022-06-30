@@ -11,7 +11,7 @@ bb = "\u265D"
 bn = "\u265E"
 bp = "\u265F"
 
-class Move(object):
+class Move():
     
     def __init__(self,piece,sx,sy,cap,ex,ey,extra):
         self.piece = piece

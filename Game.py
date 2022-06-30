@@ -27,7 +27,7 @@ black = 0
 white = 1
 
 #------------------gobal variables for testing--------------------------------
-leaves = 0 
+
 
 #-----------------------------------------------------------------------------
 
@@ -36,19 +36,17 @@ def random_move(state):
     x= random.randint(0, len(valid_moves)-1)
     return valid_moves[x]
     
-# returns the max move for that player 
-def mat_minimax(state, color, target_depth, a, b, is_maxing):   
+# returns the max or min value for the state
+def mat_minimax(state,target_depth, a, b, is_maxing):   
     # checks if the state is terminal
     if target_depth<1 or state.is_terminal():
-        global leaves
-        leaves+=1
-        return state.standard_mat_eval(color)
+        return state.standard_mat_eval(white)
     
     elif is_maxing:
         child_states = state.generate_all_successor_states()
         value = -1000
         for child in child_states:
-            value = max(value, mat_minimax(child, color,target_depth-1, a, b,False))
+            value = max(value, mat_minimax(child,target_depth-1, a, b,False))
             a = max(a, value)
             if value >= b:
                 break
@@ -57,7 +55,7 @@ def mat_minimax(state, color, target_depth, a, b, is_maxing):
         child_states = state.generate_all_successor_states()
         value = 1000
         for child in child_states:
-            value = min(value, mat_minimax(child,color, target_depth-1, a, b, True))
+            value = min(value, mat_minimax(child, target_depth-1, a, b, True))
             b = min(b, value)
             if value <= a:
                 break
@@ -102,14 +100,22 @@ class minimax_agent(agent):
         states = [state.generateSuccessor(move) for move in moves]
         # run minimax on all of the future states
         results=[]
+      
+        
         # expiramental using multiprocessing
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [executor.submit(self.play_func, future_state, self.other,self.depth-1, -1000,1000,False) for future_state in states]
+        with concurrent.futures.ProcessPoolExecutor(max_workers=6) as executor:
+            if self.color ==white:
+                futures = [executor.submit(self.play_func, future_state,self.depth-1, -1000,1000,False) for future_state in states]
+            elif self.color == black:
+                futures = [executor.submit(self.play_func, future_state,self.depth-1, -1000,1000,True) for future_state in states]
+
             results = [f.result() for f in futures]         
-   
-        #results = [self.play_func(future_state, self.color,self.depth-1, -1000,1000,False) for future_state in states]
+        
+        if self.color ==white:
+            best = max(results)
+        elif self.color == black:
+            best = min(results)
        
-        best = max(results)
         indecies=[]
         for i in range(len(results)):
             if results[i]==best:
@@ -125,7 +131,7 @@ class normal_game:
         self.game_state = s.State()
         self.game_state.setup_vanilla()
         self.players = [bplayer,wplayer]
-        self.turn_num = 0
+        self.turn_num = 1
         self.moves_played = []
         self.turn_limit = turn_limit
         
@@ -145,13 +151,13 @@ class normal_game:
         print(output)
         
     def next_turn(self):
-        self.turn_num +=1
         move = self.players[self.turn_num%2].choose_move(self.game_state)
         self.moves_played.append(str(move))
         self.game_state = self.game_state.generateSuccessor(move)
+        self.turn_num +=1
         
     def is_over(self):
-        return self.game_state.is_terminal() or self.turn_num >self.turn_limit
+        return self.game_state.is_terminal() or self.turn_num >= self.turn_limit
     
     def run(self):
         while not self.is_over():
@@ -162,12 +168,12 @@ class normal_game:
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-    whitePlayer = minimax_agent(4,white)
-    blackPlayer = minimax_agent(0,black)
+    whitePlayer = minimax_agent(2,white)
+    blackPlayer = minimax_agent(4,black)
 
     results =[]
     noG  =1
-    length =1
+    length =34
     start = time.perf_counter()
    
     for i in range(noG):
@@ -175,8 +181,7 @@ if __name__=="__main__":
         game.run()
         game.print_PGN()
     
-    print((time.perf_counter()-start)/noG)
-    print("Number of leaf nodes per turn: ",leaves/noG)
+    print("Seconds per turn: ",round((time.perf_counter()-start)/noG/length))
 
 
 #--------------------------------------------------------------
