@@ -2,6 +2,8 @@ import Move as m
 import Piece as p
 import numpy as np
 import copy
+import time
+import sys
 
 wk = "\u2654"
 wq = "\u2655"
@@ -19,6 +21,15 @@ em = "--"
 
 white =1
 black =0
+
+#testing variables
+#-----------------
+check_time = 0
+deep_copy_time = 0
+
+
+
+#-----------------
 
 def get_color(piece_type):
    rep = hex(ord(piece_type))
@@ -39,9 +50,27 @@ class State():
         self.bmat =0
         self.previousMove=None
         
+    def deep_clone(self):
+        clone  = State()
+        clone.board = copy.deepcopy(self.board)
+        for piece in self.whitePieces:
+            clone.whitePieces.append(piece.deep_clone())
+        for piece in self.blackPieces:
+            clone.blackPieces.append(piece.deep_clone())     
+      
+        if self.previousMove is not None:
+            clone.previousMove = self.previousMove.deep_clone()
+        clone.wmat = self.wmat
+        clone.bmat = self.bmat
+        clone.turnNum = self.turnNum
+        return clone
+        
+        
     def generateSuccessor(self,move):
-        new = copy.deepcopy(self)
-       
+        global deep_copy_time
+        t = time.perf_counter()
+        new = self.deep_clone()
+        deep_copy_time += (time.perf_counter()-t)
         curr_pieces=[]
         other_pieces=[]
         if new.turnNum%2==white:
@@ -154,7 +183,7 @@ class State():
     
     # generate all possible moves for a player's turn including self checks
     # to be actually playable these moves will have to filtered
-    def generate_all_moves(self):
+    def generate_all_moves(self, check=True):
         all_moves = []
         pieces =[]
         if self.turnNum%2==1:
@@ -665,29 +694,43 @@ class State():
                 all_moves.append(knight)
                 all_moves.append(bishop)
                 all_moves.append(rook)
+        if check==True:
+                global check_time
+                t = time.perf_counter()
+                all_moves = self.filter_self_checks(all_moves)
+                check_time += (time.perf_counter()-t)
                 
-        
-        all_moves = self.filter_self_checks(all_moves)
+            
         
         # add check mate tag to previous move
         if len(all_moves)==0:
-            self.previousMove().extra.append("#")
-
+            self.previousMove.extra+="#"
         return all_moves
     
     #TODO
     def filter_self_checks(self,all_moves):
+        refined =[]
         for move in all_moves:
-            pass
-
-        return all_moves
+            valid = True
+            # make the next state
+            fs = self.generateSuccessor(move)
+            # 
+            king = fs.get_king_position(self.turnNum%2)
+            fmoves = fs.generate_all_moves(False)
+            for fm in fmoves:
+                if fm.ex ==king[0]  and fm.ey==king[1]:
+                    valid=False
+                    break
+            if valid:
+                refined.append(move)
+        return refined
     
     # one function call to find all valid moves and then the states from those moves
     # returns a list of new states
     def generate_all_successor_states(self):
         if self.is_terminal():
             return []
-        moves= self.generate_all_moves()
+        moves= self.generate_all_moves(True)
         states = [self.generateSuccessor(move) for move in moves]
         return states
                 
@@ -770,7 +813,8 @@ class State():
     
     #TODO
     def is_terminal(self):
-        
+        if self.turnNum>3 and "#" in self.previousMove.extra:
+            return True
         # check for missing king
         # this should not ever happen in a real game
         types = [piece.type for piece in self.blackPieces]
@@ -830,3 +874,10 @@ class State():
         self.whitePieces.append(p.Piece(wb, 5, 7, 3,white))
         self.whitePieces.append(p.Piece(wn, 6, 7, 3,white))
         self.whitePieces.append(p.Piece(wr, 7, 7, 5,white))
+        
+def get_op_stats():
+    stats_dict = {
+        "Check": check_time,
+        "Cloning": deep_copy_time
+    }
+    return stats_dict

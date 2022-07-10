@@ -50,6 +50,10 @@ class Move():
     def medium2(self):
         return self.piece.translate_to_pgn()+str(8-self.sy) + self.cap + convert(self.ex) + str(8-self.ey) +self.extra
     
+    def deep_clone(self):
+        clone  = Move( self.piece.deep_clone(), self.sx,self.sy,self.cap,self.ex,self.ey,self.extra)
+        return clone
+        
 def convert(num):
     if num==0:
         return "a"

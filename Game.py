@@ -32,12 +32,12 @@ white = 1
 #-----------------------------------------------------------------------------
 
 def random_move(state):
-    valid_moves = state.generate_all_moves()
+    valid_moves = state.generate_all_moves(True)
     x= random.randint(0, len(valid_moves)-1)
     return valid_moves[x]
     
 # returns the max or min value for the state
-def mat_minimax(state,target_depth, a, b, is_maxing):   
+def mat_minimax(state,target_depth, a, b, is_maxing):
     # checks if the state is terminal
     if target_depth<1 or state.is_terminal():
         return state.standard_mat_eval(white)
@@ -95,7 +95,7 @@ class minimax_agent(agent):
         if self.depth <1:
             return random_move(state)
             
-        moves = state.generate_all_moves()
+        moves = state.generate_all_moves(True)
         # saving time by not recalculating all moves
         states = [state.generateSuccessor(move) for move in moves]
         # run minimax on all of the future states
@@ -109,8 +109,17 @@ class minimax_agent(agent):
             elif self.color == black:
                 futures = [executor.submit(self.play_func, future_state,self.depth-1, -1000,1000,True) for future_state in states]
 
-            results = [f.result() for f in futures]         
         
+            results = [f.result() for f in futures] 
+            '''
+        # single core processing for debugging and optimization testing
+        if self.color==white:
+            for state in states:
+                results.append(self.play_func(state, self.depth-1, -1000, 1000, False) )
+        if self.color==black:
+            for state in states:
+                 results.append(self.play_func(state, self.depth-1, -1000, 1000, True) )
+        '''
         if self.color ==white:
             best = max(results)
         elif self.color == black:
@@ -142,7 +151,7 @@ class normal_game:
         self.playres[0] = player
     
     def __str__(self):
-        return str(self.moves_played)
+        return str(self.game_state)
     
     def print_PGN(self):
         output = "\n"
@@ -157,7 +166,7 @@ class normal_game:
         self.turn_num +=1
         
     def is_over(self):
-        return self.game_state.is_terminal() or self.turn_num >= self.turn_limit
+        return self.game_state.is_terminal() or self.turn_num > self.turn_limit
     
     def run(self):
         while not self.is_over():
@@ -168,21 +177,27 @@ class normal_game:
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-    whitePlayer = minimax_agent(2,white)
-    blackPlayer = minimax_agent(4,black)
+    whitePlayer = minimax_agent(3,white)
+    blackPlayer = minimax_agent(3,black)
 
     results =[]
-    noG  =1
-    length =34
+    noG  = 1
+    length =28
     start = time.perf_counter()
    
     for i in range(noG):
         game = normal_game(whitePlayer,blackPlayer,length)
         game.run()
         game.print_PGN()
+        #print(game)
     
-    print("Seconds per turn: ",round((time.perf_counter()-start)/noG/length))
+    print("Seconds per turn: ",round((time.perf_counter()-start)/noG/length,2))
 
-
+    times = s.get_op_stats()
+    for key,value in times.items():
+        print(key,": " ,value)
+  
 #--------------------------------------------------------------
+
+    
     
