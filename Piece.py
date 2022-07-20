@@ -26,6 +26,12 @@ class Piece(object):
     def __str__(self):
         return self.type+ m.convert(self.x)+str((8-self.y)) +"\n"
     
+    def deep_clone(self):
+        clone = Piece(self.type,self.x,self.y,self.value,self.color)
+        clone.has_not_moved = self.has_not_moved
+        return clone
+        
+    
     def translate_to_pgn(self):
         if self.type == wk or self.type == bk:
             return "K"
