@@ -2,6 +2,8 @@ import Move as m
 import Piece as p
 import numpy as np
 import copy
+import time
+import sys
 
 wk = "\u2654"
 wq = "\u2655"
@@ -19,6 +21,16 @@ em = "--"
 
 white =1
 black =0
+
+#testing variables
+#-----------------
+check_time = 0
+deep_copy_time = 0
+move_time = 0 
+
+
+
+#-----------------
 
 def get_color(piece_type):
    rep = hex(ord(piece_type))
@@ -38,10 +50,32 @@ class State():
         self.wmat =0
         self.bmat =0
         self.previousMove=None
+        self.draw_timer = 0
+        # first value for wether or not there is an outcome
+        # 0 for draw, 100 for white win, -100 for black
+        self.outcome = [False,0]
+        
+    def deep_clone(self):
+        clone  = State()
+        clone.board = copy.deepcopy(self.board)
+        for piece in self.whitePieces:
+            clone.whitePieces.append(piece.deep_clone())
+        for piece in self.blackPieces:
+            clone.blackPieces.append(piece.deep_clone())     
+      
+        if self.previousMove is not None:
+            clone.previousMove = self.previousMove.deep_clone()
+        clone.wmat = self.wmat
+        clone.bmat = self.bmat
+        clone.turnNum = self.turnNum
+        return clone
+        
         
     def generateSuccessor(self,move):
-        new = copy.deepcopy(self)
-       
+        global deep_copy_time
+        t = time.perf_counter()
+        new = self.deep_clone()
+        deep_copy_time += (time.perf_counter()-t)
         curr_pieces=[]
         other_pieces=[]
         if new.turnNum%2==white:
@@ -52,6 +86,7 @@ class State():
             curr_pieces = new.blackPieces
         # remove a captured piece
         if move.cap=="x":
+            new.draw_timer = 0
             for piece in other_pieces:
                 if piece.x==move.ex and piece.y==move.ey:
                     other_pieces.remove(piece)
@@ -60,7 +95,11 @@ class State():
                     else:
                         new.wmat-=piece.value
                     break
-        
+        # if not capture and not a pawn move
+        elif move.piece.type!=bp and move.piece.type != wp:
+            new.draw_timer +=1    
+        else:
+            new.draw_timer = 0 
         # update the piece(s) that moved
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece.type
@@ -154,7 +193,8 @@ class State():
     
     # generate all possible moves for a player's turn including self checks
     # to be actually playable these moves will have to filtered
-    def generate_all_moves(self):
+    def generate_all_moves(self, check=True):
+        start = time.perf_counter()
         all_moves = []
         pieces =[]
         if self.turnNum%2==1:
@@ -666,52 +706,41 @@ class State():
                 all_moves.append(bishop)
                 all_moves.append(rook)
                 
-        
-        all_moves = self.filter_self_checks(all_moves)
-        all_moves = self.simple_optimize_move_order(all_moves) 
-
+        global move_time
+        move_time+=time.perf_counter()-start
+        if check==True:
+                global check_time
+                t = time.perf_counter()
+                all_moves = self.filter_self_checks(all_moves)
+                check_time += (time.perf_counter()-t)
+                
+            
         return all_moves
     
     #TODO
-    
     def filter_self_checks(self,all_moves):
-        # temp line
-        return all_moves
+        refined =[]
         for move in all_moves:
-            # figure out if the move is check or checkmate
-            '''
-            get successor state
-            # the king position for the current player, not player of successor state
-            king_pos = successor.get_king_position(self.turnNum%2)
-            branches = generate successor state moves
-            for future_move in branches:
-                # if the other player can take the king then it is a self check
-                if future_move.ex== king_pos[0] and future_move.ey == king_pos[1]:
-                    all_moves.remove(move)
-            '''
-
-        return all_moves
-    
-    #TODO
-    # weak optimizing of the move order so that check-mates, checks, then captures are searched first
-    # this provides a 2x speed up, probably more once check filtering is in
-    def simple_optimize_move_order(self, valid_moves):
-        reordered = []
-        for move in valid_moves:
-            if move.cap=="x" or "+" in move.extra or "#" in move.extra:
-                reordered.insert(0,move)
-            else:
-                reordered.append(move)
-        return reordered
-        
-        
+            valid = True
+            # make the next state
+            fs = self.generateSuccessor(move)
+            # 
+            king = fs.get_king_position(self.turnNum%2)
+            fmoves = fs.generate_all_moves(False)
+            for fm in fmoves:
+                if fm.ex ==king[0]  and fm.ey==king[1]:
+                    valid=False
+                    break
+            if valid:
+                refined.append(move)
+        return refined
     
     # one function call to find all valid moves and then the states from those moves
     # returns a list of new states
     def generate_all_successor_states(self):
         if self.is_terminal():
             return []
-        moves= self.generate_all_moves()
+        moves= self.generate_all_moves(True)
         states = [self.generateSuccessor(move) for move in moves]
         return states
                 
@@ -723,8 +752,8 @@ class State():
         for piece in self.whitePieces:
             if piece.x==x and piece.y==y:
                 return piece
-        #to support castling
         rtn = p.Piece(em,-1,-1,-1,-1)
+        #to support castling
         rtn.has_not_moved = False
         return rtn
     
@@ -794,21 +823,14 @@ class State():
     
     #TODO
     def is_terminal(self):
-        
-        # check for missing king
-        # this should not ever happen in a real game
-        types = [piece.type for piece in self.blackPieces]
-        if bk not in types:
-            return True
-        types = [piece.type for piece in self.whitePieces]
-        if wk not in types:
-            return True
-        
-        else:
-           return False
+        return self.outcome[0] 
     
     # evaluates based on calling player
     def standard_mat_eval(self, color=white):
+        if self.outcome[0]:
+            return self.outcome[1]
+        
+        
         if color == white:
             return self.wmat-self.bmat
         else:
@@ -854,3 +876,11 @@ class State():
         self.whitePieces.append(p.Piece(wb, 5, 7, 3,white))
         self.whitePieces.append(p.Piece(wn, 6, 7, 3,white))
         self.whitePieces.append(p.Piece(wr, 7, 7, 5,white))
+        
+def get_op_stats():
+    stats_dict = {
+        "Check": check_time,
+        "Cloning": deep_copy_time,
+        "Move Gen": move_time
+    }
+    return stats_dict
