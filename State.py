@@ -668,19 +668,43 @@ class State():
                 
         
         all_moves = self.filter_self_checks(all_moves)
-        
-        # add check mate tag to previous move
-        if len(all_moves)==0:
-            self.previousMove().extra.append("#")
+        all_moves = self.simple_optimize_move_order(all_moves) 
 
         return all_moves
     
     #TODO
+    
     def filter_self_checks(self,all_moves):
+        # temp line
+        return all_moves
         for move in all_moves:
-            pass
+            # figure out if the move is check or checkmate
+            '''
+            get successor state
+            # the king position for the current player, not player of successor state
+            king_pos = successor.get_king_position(self.turnNum%2)
+            branches = generate successor state moves
+            for future_move in branches:
+                # if the other player can take the king then it is a self check
+                if future_move.ex== king_pos[0] and future_move.ey == king_pos[1]:
+                    all_moves.remove(move)
+            '''
 
         return all_moves
+    
+    #TODO
+    # weak optimizing of the move order so that check-mates, checks, then captures are searched first
+    # this provides a 2x speed up, probably more once check filtering is in
+    def simple_optimize_move_order(self, valid_moves):
+        reordered = []
+        for move in valid_moves:
+            if move.cap=="x" or "+" in move.extra or "#" in move.extra:
+                reordered.insert(0,move)
+            else:
+                reordered.append(move)
+        return reordered
+        
+        
     
     # one function call to find all valid moves and then the states from those moves
     # returns a list of new states
@@ -699,8 +723,8 @@ class State():
         for piece in self.whitePieces:
             if piece.x==x and piece.y==y:
                 return piece
-        rtn = p.Piece(em,-1,-1,-1,-1)
         #to support castling
+        rtn = p.Piece(em,-1,-1,-1,-1)
         rtn.has_not_moved = False
         return rtn
     

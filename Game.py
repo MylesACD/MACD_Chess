@@ -168,11 +168,11 @@ class normal_game:
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-    whitePlayer = minimax_agent(2,white)
+    whitePlayer = minimax_agent(0,white)
     blackPlayer = minimax_agent(4,black)
 
     results =[]
-    noG  =1
+    noG  =3
     length =34
     start = time.perf_counter()
    
@@ -181,7 +181,7 @@ if __name__=="__main__":
         game.run()
         game.print_PGN()
     
-    print("Seconds per turn: ",round((time.perf_counter()-start)/noG/length))
+    print("Seconds per turn: ",(time.perf_counter()-start)/noG/length)
 
 
 #--------------------------------------------------------------
