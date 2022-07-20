@@ -77,8 +77,8 @@ class normal_game:
     
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
-    whitePlayer = a.minimax_agent(0,white)
-    blackPlayer = a.human_agent()
+    whitePlayer = a.minimax_agent(3,white)
+    blackPlayer = a.minimax_agent(3,black)
 
     results =[]
     noG  = 1
@@ -91,13 +91,15 @@ if __name__=="__main__":
             game.print_PGN()
     except:
         game.print_PGN()
-        print("error")
+        print("----------ERROR----------")
     total_time = time.perf_counter()-start
     print("Seconds per turn: ",round((total_time)/noG/length,2))
-
+    
+    '''
     times = s.get_op_stats()
     for key,value in times.items():
         print(key,": " ,round(100*value/total_time,3))
+    '''
   
 #--------------------------------------------------------------
 
