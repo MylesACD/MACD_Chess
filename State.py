@@ -52,7 +52,7 @@ class State():
         self.previousMove=None
         self.draw_timer = 0
         # first value for wether or not there is an outcome
-        # 0 for draw, 100 for white win, -100 for black
+        # 0 for draw, -100 for white win, 100 for black
         self.outcome = [False,0]
         
     def deep_clone(self):
@@ -68,6 +68,7 @@ class State():
         clone.wmat = self.wmat
         clone.bmat = self.bmat
         clone.turnNum = self.turnNum
+        clone.outcome = copy.copy(self.outcome)
         return clone
         
         
@@ -88,18 +89,19 @@ class State():
         if move.cap=="x":
             new.draw_timer = 0
             for piece in other_pieces:
-                if piece.x==move.ex and piece.y==move.ey:
+                # if the piece is where the capturer ends or the en passant conditions
+                if (piece.x==move.ex and piece.y==move.ey) or (move.passant and move.ex==piece.x and move.sy==piece.y):
                     other_pieces.remove(piece)
                     if new.turnNum%2==white:
                         new.bmat-=piece.value
                     else:
                         new.wmat-=piece.value
                     break
-        # if not capture and not a pawn move
-        elif move.piece.type!=bp and move.piece.type != wp:
-            new.draw_timer +=1    
+        # if a pawn removes reset the draw timer
+        elif move.piece.type==bp or move.piece.type == wp:
+            new.draw_timer =0   
         else:
-            new.draw_timer = 0 
+            new.draw_timer +=1
         # update the piece(s) that moved
         new.board[move.sy][move.sx] = em
         new.board[move.ey][move.ex] = move.piece.type
@@ -222,7 +224,7 @@ class State():
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y-1,""))
                 #en passant
                 if self.previousMove and piece.y == 3 and self.previousMove.piece.type == bp and self.previousMove.ey - self.previousMove.sy == 2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
-                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey - 1,""))
+                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey - 1,"",True))
 
             #Black Pawn Case
             elif piece.type == bp:
@@ -242,7 +244,7 @@ class State():
                     all_moves.append(m.Move(piece, piece.x, piece.y, "x", piece.x+1, piece.y+1,""))
                 #en passant
                 if self.previousMove and piece.y == 4 and self.previousMove.piece.type == wp and self.previousMove.ey - self.previousMove.sy == -2 and (self.previousMove.ex == piece.x - 1 or self.previousMove.ex == piece.x + 1): 
-                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey + 1,""))
+                    all_moves.append(m.Move(piece, piece.x, piece.y, "x",self.previousMove.ex, self.previousMove.ey + 1,"",True))
 
                 
             
@@ -680,6 +682,7 @@ class State():
                 x = piece.x
                 y = piece.y
                 # TODO checking 
+                # doesn't care if it was in check, or if the squares are under threat
                 if piece.has_not_moved and self.previousMove is not None and"+" not in self.previousMove.extra:
                     #long castle, checks empty spaces, and that the piece in the corner has not moved
                     if self.board[y,x-1]==em and self.board[y,x-2]==em and self.board[y,x-3]==em and self.get_piece_at_position(x-4, y).has_not_moved:
@@ -695,6 +698,7 @@ class State():
         for move in all_moves:
             # if the piece is a pawn and at one of the far sides
             if (move.piece.type==wp or move.piece.type==bp) and (move.ey==0 or move.ey==7) and "=" not in move.extra:
+                # add variants of the move for kinght bishop and rook under-promotions
                 knight = copy.copy(move)
                 bishop = copy.copy(move)
                 rook = copy.copy(move)
@@ -713,7 +717,9 @@ class State():
                 t = time.perf_counter()
                 all_moves = self.filter_self_checks(all_moves)
                 check_time += (time.perf_counter()-t)
-                
+        # TODO
+        if len(all_moves)==0:
+            self.outcome[0]= True
             
         return all_moves
     
@@ -726,6 +732,7 @@ class State():
             fs = self.generateSuccessor(move)
             # 
             king = fs.get_king_position(self.turnNum%2)
+            # passes false to prevent infinite check filtering
             fmoves = fs.generate_all_moves(False)
             for fm in fmoves:
                 if fm.ex ==king[0]  and fm.ey==king[1]:
@@ -773,7 +780,7 @@ class State():
     def __str__(self):
         return str(self.board)
     
-    def convert_board_to_num(self,mat=False):
+    def convert_board_to_num_array(self,mat=False):
         temp = self.board.flatten()
         output=np.zeros(65,dtype=int)
         # white is negative
@@ -816,9 +823,11 @@ class State():
                 
         output[0] =  self.turnNum%2
         
+        # append standard material difference to end of ouput array
         if mat:
             output = np.append(output, self.bmat-self.wmat)
-        #print(output)
+        # append the result of the game to num array
+        output = np.append(output, self.outcome[1])
         return output
     
     #TODO

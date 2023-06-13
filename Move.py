@@ -13,7 +13,7 @@ bp = "\u265F"
 
 class Move():
     
-    def __init__(self,piece,sx,sy,cap,ex,ey,extra):
+    def __init__(self,piece,sx,sy,cap,ex,ey,extra,passant=False):
         self.piece = piece
         self.sx = sx
         self.sy=sy
@@ -21,6 +21,7 @@ class Move():
         self.ex =ex
         self.ey =ey
         self.extra =extra
+        self.passant = passant
         
     def __str__(self):
         s = self.piece.translate_to_pgn()

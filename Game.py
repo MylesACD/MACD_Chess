@@ -11,6 +11,7 @@ import threading as thd
 import concurrent
 
 
+
 wk = "\u2654"
 wq = "\u2655"
 wr = "\u2656"
@@ -59,11 +60,20 @@ class normal_game:
             output += move +"\n"
         print(output)
         
+    def append_to_training(self):
+        training = open("evolution_training.txt","w",encoding="utf-8") 
+        # tests if the game has a conclusive outcome
+        if self.game_state.is_terminal():
+            line = ptb.string_rep(self.game_state.convert_board_to_num_array(mat=True))
+            training.write(line)
+            
+        
     def next_turn(self):
         move = self.players[self.turn_num%2].choose_move(self.game_state)
         self.moves_played.append(str(move))
         self.game_state = self.game_state.generateSuccessor(move)
         self.turn_num +=1
+        print(str(move))
         
     def is_over(self):
         return self.game_state.is_terminal() or self.turn_num > self.turn_limit
@@ -71,6 +81,7 @@ class normal_game:
     def run(self):
         while not self.is_over():
             game.next_turn()
+        self.append_to_training()
         return self.game_state.standard_mat_eval(white)
 
     
@@ -78,22 +89,26 @@ class normal_game:
 if __name__=="__main__":
 #--------------------Testing stuff-----------------------
     whitePlayer = a.minimax_agent(3,white)
-    blackPlayer = a.minimax_agent(3,black)
+    blackPlayer = a.minimax_agent(1,black)
 
     results =[]
-    noG  = 1
+    number_of_games  = 1
     length =50
     start = time.perf_counter()
+    
     try:
-        for i in range(noG):
+        for i in range(number_of_games):
             game = normal_game(whitePlayer,blackPlayer,length)
             game.run()
-            game.print_PGN()
-    except:
+    except Exception as inst:
+        
         game.print_PGN()
         print("----------ERROR----------")
+        print(inst)
+        
+        
     total_time = time.perf_counter()-start
-    print("Seconds per turn: ",round((total_time)/noG/length,2))
+    print("Seconds per turn: ",round((total_time)/number_of_games/length,2))
     
     '''
     times = s.get_op_stats()

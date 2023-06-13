@@ -63,7 +63,7 @@ def build_game(game_line):
         state = gen_board(move_text, state)
         if state:
             if state.turnNum>0:
-                data_object = state.convert_board_to_num(mat=True)
+                data_object = state.convert_board_to_num_array(mat=True)
                 data_object = np.append(data_object,[result_to_num(result)])
                 boards.append(data_object)
         else:
@@ -130,7 +130,7 @@ def single_state(game_line):
             print("failed to translate: ", move_text)
             return None
     #return a list so that its ready to go for prediction models
-    return [state.convert_to_num()]
+    return [state.convert_to_num_array()]
     
 if __name__=="__main__":
     start = time.perf_counter()

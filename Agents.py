@@ -7,7 +7,7 @@ import random
 import PGN_To_Boards as ptb
 import pickle
 import threading as thd
-import concurrent
+import concurrent.futures
 
 wk = "\u2654"
 wq = "\u2655"
@@ -32,6 +32,31 @@ def random_move(state):
     
 # returns the max or min value for the state
 def mat_minimax(state,target_depth, a, b, is_maxing):
+    # checks if the state is terminal
+    if target_depth<1 or state.is_terminal():
+        return state.standard_mat_eval(white)
+    
+    elif is_maxing:
+        child_states = state.generate_all_successor_states()
+        value = -1000
+        for child in child_states:
+            value = max(value, mat_minimax(child,target_depth-1, a, b,False))
+            a = max(a, value)
+            if value >= b:
+                break
+        return value
+    else:
+        child_states = state.generate_all_successor_states()
+        value = 1000
+        for child in child_states:
+            value = min(value, mat_minimax(child, target_depth-1, a, b, True))
+            b = min(b, value)
+            if value <= a:
+                break
+        return value
+    
+# returns the max or min value for the state
+def  tree_cull_minimax(state,target_depth, a, b, is_maxing, cull_threshold):
     # checks if the state is terminal
     if target_depth<1 or state.is_terminal():
         return state.standard_mat_eval(white)
@@ -111,7 +136,7 @@ class minimax_agent(agent):
         # run minimax on all of the future states
         results=[]
       
-        
+        #'''
         # expiramental using multiprocessing
         with concurrent.futures.ProcessPoolExecutor(max_workers=6) as executor:
             if self.color ==white:
@@ -129,7 +154,7 @@ class minimax_agent(agent):
         if self.color==black:
             for state in states:
                  results.append(self.play_func(state, self.depth-1, -1000, 1000, True) )
-        '''
+        #'''
         if self.color ==white:
             best = max(results)
         elif self.color == black:
@@ -141,3 +166,8 @@ class minimax_agent(agent):
                 indecies.append(i)
         x = random.randint(0, len(indecies)-1)
         return moves[indecies[x]]
+    
+    
+class evoling_agent(minimax_agent):
+    def __init__(self, depth, color,cull_threshold):
+        self.super(self,depth,color)
